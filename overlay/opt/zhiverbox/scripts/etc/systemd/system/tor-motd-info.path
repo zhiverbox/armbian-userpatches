@@ -1,0 +1,11 @@
+[Unit]
+Description=Starts tor-motd-info.timer
+After=tor.service
+
+[Path]
+PathExists=/var/run/tor/control
+PathModified=/var/run/tor/tor.pid
+Unit=tor-motd-info.timer
+
+[Install]
+WantedBy=multi-user.target

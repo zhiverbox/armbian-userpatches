@@ -1,0 +1,25 @@
+#!/bin/sh
+
+set -e
+
+PREREQ=""
+
+prereqs()
+{
+	echo "$PREREQ"
+}
+
+case $1 in
+prereqs)
+	prereqs
+	exit 0
+	;;
+esac
+
+. /usr/share/initramfs-tools/hook-functions
+
+# set the hostname of initramfs system
+#echo -n "zhiverbox-boot" > $DESTDIR/etc/hostname
+
+# copy /etc/profile to initramfs system
+cp /etc/initramfs-tools/etc/profile $DESTDIR/etc/profile

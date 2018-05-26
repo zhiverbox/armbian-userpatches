@@ -1,0 +1,10 @@
+[Unit]
+Description=Periodically collect tor info for motd
+After=tor-motd-info.timer
+
+[Service]
+Type=simple
+ExecStart=/opt/zhiverbox/scripts/cron/check_tor_info.sh
+Restart=always
+RestartSec=300
+

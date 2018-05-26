@@ -1,0 +1,7 @@
+[Unit]
+Description=Starts tor-motd-info.service after some delay
+After=tor-motd-info.path
+
+[Timer]
+OnActiveSec=20
+Unit=tor-motd-info.service

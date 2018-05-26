@@ -1,0 +1,175 @@
+#!/bin/bash
+#
+#    31-dnets - generate the distributed networks information
+
+export PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+
+THIS_SCRIPT="dnets"
+MOTD_DISABLE=""
+
+[[ -f /etc/default/armbian-motd ]] && . /etc/default/armbian-motd
+
+for f in $MOTD_DISABLE; do
+        [[ $f == $THIS_SCRIPT ]] && exit 0
+done
+
+
+# don't edit below here
+function get_systemd_status() {
+    local status=$(systemctl status $1 2>/dev/null | awk '/Active: / {print $2}')
+    if [[ $status = "active" ]]; then
+        echo -e "\x1B[0;92m$status\x1B[0m"
+    elif [[ -z $status ]]; then
+        echo -e "\x1B[0;91mnot installed\x1B[0m"
+    else
+        echo -e "\x1B[0;91m$status\x1B[0m"
+    fi
+} # get_systemd_status
+
+function get_cjdns_addresses() {
+    local ips=()
+    for f in /sys/class/net/*; do
+        local intf=$(basename $f)
+        # match only interface names starting with tun
+        if [[ $intf =~ ^tun.* ]]; then
+            # match only ipv6 addresses starting with fc
+            local tmp=$(ip -6 addr show dev tun0 | awk '/inet6/ {print $2}' | grep -e ^fc | cut -d'/' -f1)
+            # add both name and IP - can be informative but becomes ugly with long persistent/predictable device names
+            [[ -n $tmp ]] && ips+=("$tmp ($intf)")
+            # add IP only
+            #[[ -n $tmp ]] && ips+=("$tmp")
+        fi
+    done
+    echo "${ips[@]}"
+} # get_cjdns_addresses
+
+function get_cjdns_beacon_state() {
+    # seems to be broken right now
+    #responses[0]=$(/opt/src/cjdns/contrib/python/cexec 'ETHInterface_beacon(0)')
+    
+    # see: /opt/src/cjdns/doc/admin-api.md
+    # $ ./contrib/python/cexec 'ETHInterface_beacon(0)'
+    # {'txid': 'Z7KHE7SZ5R', 'state': 2, 'stateName': 'sending and accepting', 'error': 'none'}
+
+    
+    # TODO: query dynamically from running instance via admin-api
+    # hardcoded right now according to default config
+    responses[0]="{'txid': 'Z7KHE7SZ5R', 'state': 2, 'stateName': 'sending and accepting', 'error': 'none'}"
+    
+    i=0
+    all_equal=1
+    for response in "${responses[*]}"
+    do
+        j=$i-1
+        states[$i]=$(echo $response | sed "s/'/\"/g" | jq -r '.state')
+        [[ $i > 0 && ${states[i]} != ${states[j]} ]] && all_equal=0
+        ((i++))
+    done
+    
+    if [[ $all_equal = 1 ]]; then
+        case ${states[0]} in 
+            0) result="disabled (all)";;
+            1) result="accept (all)";;
+            2) result="accept+send (all)";;
+        esac
+    else
+        # TODO
+        result="TODO"
+    fi
+    
+    # write result
+    echo "$result"
+} #get_cjdns_beacon_state
+
+function get_hyperboria_connection_state() {
+    local testsfile=/var/run/cjdns/hyperboria-connection-test.txt
+    if [[ -f $testsfile ]]; then
+        local transm=$(cat $testsfile | awk '/packets transmitted/ {print $1}')
+        local receiv=$(cat $testsfile | awk '/packets transmitted/ {print $4}')
+        
+        local tm=0
+        for l in $transm
+        do
+            ((tm+=l))
+        done
+        
+        local rc=0
+        for l in $receiv
+        do
+            ((tm+=l))
+        done
+        
+        echo "$tm $rc"
+    fi
+} # get_hyperboria_connection_state
+
+function display() {
+    # $1=name $2=value $3=red_limit $4=minimal_show_limit $5=unit $6=after $7=acs/desc{
+    # battery red color is opposite, lower number
+    case "$1" in 
+        Battery|Hyperboria) 
+            local great="<";; 
+        *)
+            local great=">";;
+    esac
+    if [[ -n "$2" && (( "${2%.*}" -ge "$4" )) ]]; then
+    printf "%-14s%s" "$1:"
+        if awk "BEGIN{exit ! ($2 $great $3)}"; then echo -ne "\e[0;91m $2"; else echo -ne "\e[0;92m $2"; fi
+        printf "%-1s%s\x1B[0m" "$5"
+        printf "%-11s%s\t" "$6"
+        return 1
+    fi
+} # display
+
+
+# query various systems and send some stuff to the background for overall faster execution.
+
+# Tor info
+tor_status=$(get_systemd_status tor &)
+if [[  -f /var/run/tor/motd.info ]]; then
+    . /var/run/tor/motd.info
+    if [[ $TOR_INFO_IS_CIRCUIT_READY = "YES" ]]; then
+        tor_circuit=$(echo -ne "\x1B[92mready ($TOR_INFO_NUM_OPEN_CIRCUITS)\x1B[0m")
+    else
+        tor_circuit=$(echo -ne "\x1B[91mnot ready\x1B[0m")
+    fi
+    
+    tor_hidden_services=$(echo -ne "\x1B[92m$TOR_INFO_NUM_ONION_SERVICES\x1B[0m")
+    tor_relay=$(echo -ne "\x1B[93m${TOR_INFO_IS_RELAY,,}\x1B[0m")
+fi
+
+# Cjdns info
+cjdns_status=$(get_systemd_status cjdns &)
+cjdns_address=$(get_cjdns_addresses &)
+cjdns_peers=$(/opt/src/cjdns/contrib/python/peerStats | grep -c ^fc)
+cjdns_beacon_state=$(get_cjdns_beacon_state &)
+hyperboria_transm=$(get_hyperboria_connection_state | awk '{print $1}')
+hyperboria_receiv=$(get_hyperboria_connection_state | awk '{print $2}')
+
+# I2P info
+#i2p_status=$(get_systemd_status kovri &)
+
+
+# display info
+if [[ $tor_status =~ "active" ]]; then
+    printf "Tor circuits: "
+    printf "%s\t" "$tor_circuit"
+    printf "Hidden Services: "
+    printf "%s\t" "$tor_hidden_services"
+    printf "Relay: "
+    printf "%s" "$tor_relay"
+    echo "" # fixed newline
+fi
+if [[ $cjdns_status =~ "active" ]]; then
+    printf "Cjdns peers: "
+    printf "\x1B[92m%s\x1B[0m" "$cjdns_peers"
+    printf "  Beacon: "
+    printf "\x1B[93m%s\x1B[0m" "$cjdns_beacon_state"
+    display "  Hyperboria" "$(($hyperboria_receiv * 100 / $hyperboria_transm))" "$(($hyperboria_transm/2))" "0" "%" " pings"
+    echo "" # fixed newline
+    printf "Cjdns IP:      " 
+    printf "\x1B[92m%s\x1B[0m" "$(awk '{ print $1}' <<< $cjdns_address)"
+    printf " %s" "$(awk '{ print $2}' <<< $cjdns_address)"
+    echo "" # fixed newline
+fi
+echo "" # fixed newline
