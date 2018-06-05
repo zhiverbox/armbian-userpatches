@@ -1,0 +1,2 @@
+# Allow unsolicited inbound connections to ipfs daemon from all Cjdns addresses
+proto tcp dport {{IPFS_DEFAULT_PORT}} ACCEPT;

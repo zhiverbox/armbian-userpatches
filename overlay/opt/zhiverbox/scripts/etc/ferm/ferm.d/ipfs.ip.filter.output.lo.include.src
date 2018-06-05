@@ -1,0 +1,21 @@
+# IPFS's default port, used by ipfs daemon
+saddr 127.0.0.1 proto tcp sport {{IPFS_DEFAULT_PORT}} {
+    mod owner uid-owner {{IPFS_USER}} ACCEPT;
+}
+
+# IPFS's api port, used by ipfs cli
+daddr 127.0.0.1 proto tcp syn dport {{IPFS_API_PORT}} {
+	mod owner uid-owner {{IPFS_USER}} ACCEPT;
+	mod owner uid-owner root ACCEPT;
+    mod owner uid-owner $user_uid ACCEPT;
+}
+
+# IPFS's gateway port
+daddr 127.0.0.1 proto tcp dport {{IPFS_GATEWAY_PORT}} {
+    mod owner uid-owner $user_uid ACCEPT;
+}
+
+# mDNS peer discovery on lo interface
+daddr 127.0.0.1 proto udp dport 5353 {
+    mod owner uid-owner {{IPFS_USER}} ACCEPT;
+}

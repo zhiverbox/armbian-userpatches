@@ -1,0 +1,19 @@
+# IPFS's default port, used by ipfs daemon
+daddr ::1 proto tcp dport {{IPFS_DEFAULT_PORT}} {
+    mod owner uid-owner {{IPFS_USER}} ACCEPT;
+}
+
+# IPFS's api port, used by ipfs cli
+daddr ::1 proto tcp syn dport {{IPFS_API_PORT}} {
+	mod owner uid-owner {{IPFS_USER}} ACCEPT;
+	mod owner uid-owner root ACCEPT;
+    mod owner uid-owner $user_uid ACCEPT;
+}
+
+# IPFS's gateway port
+daddr ::1 proto tcp dport {{IPFS_GATEWAY_PORT}} {
+    mod owner uid-owner $user_uid ACCEPT;
+}
+
+# weired: IPFS tries to send cjdns packets via the lo interface and spams the logs
+saddr fc00::/8 proto tcp sport {{IPFS_DEFAULT_PORT}} DROP;

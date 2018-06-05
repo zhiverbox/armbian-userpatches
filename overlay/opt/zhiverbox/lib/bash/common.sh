@@ -30,6 +30,8 @@ NC='\x1B[0m'
 # zHIVErbox parent directory for mounting btrfs root volumes (subvolid=0)
 MOUNT_BTRFSROOT=/run/.btrfsroot
 
+ZHIVERBOX_IPFS_REPO=/etc/zhiverbox/ipfs.repo
+
 display_alert()
 #--------------------------------------------------------------------------------------------------------------------------------
 # Let's have unique way of displaying alerts

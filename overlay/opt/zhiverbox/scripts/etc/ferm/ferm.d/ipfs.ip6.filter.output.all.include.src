@@ -1,0 +1,5 @@
+# IPFS tries to find nearby peers on all interfaces via mDNS
+daddr ff02::fb proto udp dport 5353 {
+	mod owner uid-owner {{IPFS_USER}} ACCEPT;
+}
+daddr ff02::16 proto icmpv6 ACCEPT;

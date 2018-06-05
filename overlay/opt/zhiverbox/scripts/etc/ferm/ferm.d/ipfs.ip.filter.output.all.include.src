@@ -1,0 +1,11 @@
+# IPFS tries to find nearby peers on all interfaces via mDNS
+daddr 224.0.0.251 proto udp dport 5353 {
+	mod owner uid-owner {{IPFS_USER}} ACCEPT;
+}
+
+daddr 224.0.0.22 proto 2 ACCEPT;
+
+# IPFS tries to find nearby peers on all interfaces via SSDP
+daddr 239.255.255.250 proto udp dport 1900 {
+	mod owner uid-owner {{IPFS_USER}} ACCEPT;
+}

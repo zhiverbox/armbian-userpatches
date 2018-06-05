@@ -1,0 +1,4 @@
+# Allow ipfs daemon p2p connections to all Cjdns addresses
+daddr fc00::/8 proto tcp {
+	mod owner uid-owner {{IPFS_USER}} ACCEPT;
+}
