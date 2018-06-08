@@ -1,0 +1,4 @@
+uptime=$(uptime | awk '{print $3,$4}' | sed 's/,//')
+echo -e "Your zHIVErbox was (re-)booted \e[0;33m$uptime\e[0m ago."
+echo -e "Running command \e[1;32mcryptroot-unlock\e[0m. Requires your LUKS passphrase."
+cryptroot-unlock && echo "zHIVErbox is booting root system..." && exit
