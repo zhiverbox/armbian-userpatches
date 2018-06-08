@@ -1,4 +1,4 @@
-# Why zHIVErbox?
+# What is zHIVErbox?
 zHIVErbox - pronounced like 'cypher box' (sī′fər bŏks) - is an unfairly secure 
 and unfairly cheap base system for the era of distributed networks (meshnets).  
 Minds joining those networks form a HIVE (swarm) of self-sovereign individuals 
