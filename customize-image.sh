@@ -127,6 +127,12 @@ Install_zHIVErbox() {
     # hard disk setup assistance
     install_disk_setup_assistance
     
+    # IPFS setup assistance
+    install_ipfs_setup_assistance
+    
+    # bitcoind setup assistance
+    install_bitcoind_setup_assistance
+    
     # motd changes
     motd_change_10_header
     motd_change_30_sysinfo

@@ -550,6 +550,22 @@ install_disk_setup_assistance()
     chmod +x $script
 }
 
+install_ipfs_setup_assistance()
+{
+    local script=/opt/zhiverbox/scripts/etc/profile.d/z_30_check_ipfs_setup.sh
+    echo "" && display_alert "Install IPFS setup assistance script" "$script" ""
+    ln -s $script /etc/profile.d/
+    chmod +x $script
+}
+
+install_bitcoind_setup_assistance()
+{
+    local script=/opt/zhiverbox/scripts/etc/profile.d/z_50_check_bitcoind_setup.sh
+    echo "" && display_alert "Install Bitcoin Core setup assistance script" "$script" ""
+    ln -s $script /etc/profile.d/
+    chmod +x $script
+}
+
 motd_change_10_header()
 {
     local motdfile="/etc/update-motd.d/10-header"
