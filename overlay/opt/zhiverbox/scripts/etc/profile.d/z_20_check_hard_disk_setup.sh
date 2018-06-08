@@ -61,6 +61,10 @@ fi
 # if user opted out of setup reminder, silently return
 [[ -f $NO_REMIND_SETUP_FILE ]] && return
 
+# if disk is already mounted silently return
+check_disk_is_mounted
+[[ $DISK_MOUNTED ]] && return
+
 # from now on any RETURN sigs should be traped
 trap user_abort RETURN
 trap ctrl_c SIGINT
