@@ -1,0 +1,21 @@
+# Tor's SOCKSPort's for {{PREFIX}}bitcoind
+# {{PREFIX}}bitcoind sends also ack psh fin requests, so we just allow all flags
+daddr 127.0.0.1 proto tcp dport 9053 {
+    mod owner uid-owner {{BITCOIN_USER}} ACCEPT;
+}
+
+# White-list access to system DNS and Tor's DNSPort
+daddr 127.0.0.1 proto udp dport (53 5353) {
+    mod owner uid-owner {{BITCOIN_USER}} ACCEPT;
+}
+
+# White-list access to Tor's control port
+daddr 127.0.0.1 proto tcp dport {{TOR_CONTROL_PORT}} {
+    mod owner uid-owner {{BITCOIN_USER}} ACCEPT;
+}
+
+# {{PREFIX}}bitcoind's control port, used by {{PREFIX}}bitcoin-cli
+daddr 127.0.0.1 proto tcp dport {{BITCOIN_CONTROL_PORT}} {
+    mod owner uid-owner root ACCEPT;
+    mod owner uid-owner $user_uid ACCEPT;
+}

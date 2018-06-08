@@ -1,0 +1,54 @@
+# It is not recommended to modify this file in-place, because it will
+# be overwritten during package upgrades. If you want to add further
+# options or overwrite existing ones then use
+# $ systemctl edit {{PREFIX}}bitcoind.service
+# See "man systemd.service" for details.
+
+# Note that almost all daemon options could be specified in
+# /etc/bitcoin/{{PREFIX}}bitcoin.conf
+
+[Unit]
+Description=Bitcoin ({{NETWORK}}) daemon
+After=network.target
+
+[Service]
+# set affinity of {{PREFIX}}bitcoind to BIG cores (4-7)
+ExecStart=/usr/bin/taskset -a -c 4-7 \
+              /usr/local/bin/{{PREFIX}}bitcoind \
+              -daemon \
+              -conf=/etc/bitcoin/{{PREFIX}}bitcoin.conf \
+              -pid=/run/{{PREFIX}}bitcoind/bitcoind.pid \
+              -rpccookiefile=/run/{{PREFIX}}bitcoind/authcookie \
+              ${{EXTRA_ARGS_NAME}}
+ExecStartPost=-/bin/chmod g+r /run/{{PREFIX}}bitcoind/authcookie
+# Creates /run/{{PREFIX}}bitcoind owned by {{BITCOIN_USER}}
+RuntimeDirectory={{PREFIX}}bitcoind
+User={{BITCOIN_USER}}
+Type=forking
+PIDFile=/run/{{PREFIX}}bitcoind/bitcoind.pid
+Restart=on-failure
+TimeoutSec=120
+RestartSec=30
+
+# Hardening measures
+####################
+
+# Provide a private /tmp and /var/tmp.
+PrivateTmp=true
+
+# Mount /usr, /boot/ and /etc read-only for the process.
+ProtectSystem=full
+
+# Disallow the process and all of its children to gain
+# new privileges through execve().
+NoNewPrivileges=true
+
+# Use a new /dev namespace only populated with API pseudo devices
+# such as /dev/null, /dev/zero and /dev/random.
+PrivateDevices=true
+
+# Deny the creation of writable and executable memory mappings.
+MemoryDenyWriteExecute=true
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,68 @@
+# Generated with the help of https://jlopp.github.io/bitcoin-core-config-generator/
+
+# This config should be placed in following path:
+# /etc/bitcoin/{{PREFIX}}bitcoin.conf
+
+# [core]
+# Specify a non-default location to store blockchain and other data.
+#datadir=/mnt/data/{{PREFIX}}bitcoind/.bitcoin/
+# Set database cache size in megabytes; machines sync faster with a larger cache. Recommend setting as high as possible based upon machine's available RAM.
+#dbcache=300
+# Keep at most <n> unconnectable transactions in memory.
+maxorphantx=10
+# Keep the transaction memory pool below <n> megabytes.
+maxmempool=50
+# Set the number of script verification threads. (1 to CPU_CORES, 0 = automatic, less than 0 = leave that many cores free).
+# Note: zHIVErbox limits the number of cores used by bitcoind to the 3 BIG cores via /etc/cron.d/make_dapp_processes_faster
+#par=-4
+# Maintain a full transaction index, used by the getrawtransaction rpc call.
+txindex=1
+
+# [debug]
+debug=tor
+{{TESTNET}}
+
+# [network]
+# see https://github.com/bitcoin/bitcoin/blob/master/doc/tor.md
+# Accept incoming connections from peers.
+listen=1
+# Tor control <ip:port> to use if onion listening enabled.
+torcontrol=127.0.0.1:{{TOR_CONTROL_PORT}}
+# connect to peers via Tor.
+onlynet=onion 
+# SOCKS5 proxy <ip:port> for 'onlynet=onion' configuration.
+onion=127.0.0.1:9053
+# Connect to other IPv4 and IPv6 peers through <ip:port> SOCKS5 proxy.
+proxy=127.0.0.1:9053
+# Specify your own public IP address. Only needed for non-ephemeral hidden service
+#externalip=.onion
+# Allow at most N inbound connections from peers.
+maxconnections=48
+# Tries to keep outbound traffic under the given target (in MiB per 24h), 0 = no limit.
+maxuploadtarget=5000
+# Disable UPnP. This was the result of a vulnerability in previous versions of Bitcoin Core and it is suspected that additional vulnerabilities may remain. However, disabling this means that you will certainly need to manually allow incoming connections if you want them.
+upnp=0
+# Add a node IP address to connect to and attempt to keep the connection open. This option can be set multiple times.
+# Since zHIVErbox comes with Cjdns, you can add a few Cjdns adresses of trusted friends here if you like
+# However, this won't work with the 'onlynet=onion' option
+#addnode=fc00::
+#addnode=fc00::
+
+# [relay]
+# Fee rates (in BTC/kB) smaller than this are considered zero fee for relaying, mining and transaction creation.
+minrelaytxfee=0.0001
+
+# [rpc]
+# Location of the RPC auth cookie
+# rpccookiefile=/run/{{PREFIX}}bitcoind/
+# Accept command line and JSON-RPC commands.
+# server=1
+# Accept public REST requests.
+# rest=1
+# Username for JSON-RPC connections
+# rpcuser=
+# Password for JSON-RPC connections
+# rpcpassword=
+# Allow JSON-RPC connections from specified source. Valid for <ip> are a single IP (e.g. 1.2.3.4), a network/netmask (e.g. 1.2.3.4/255.255.255.0) or a network/CIDR (e.g. 1.2.3.4/24). This option can be specified multiple times.
+# rpcallowip=127.0.0.1
+
