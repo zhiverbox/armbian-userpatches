@@ -225,6 +225,10 @@ make_filesystem()
     # create a subvolume
     display_alert "Creating @${mount_name} subvolume on ${mapper_name} disk:" "btrfs subvolume create $MOUNT_BTRFSROOT/${mapper_name}/@${mount_name}" ""
     btrfs subvolume create $MOUNT_BTRFSROOT/${mapper_name}/@${mount_name}
+    
+    # make default subvolume
+    local subvolid=$(btrfs subvolume list $MOUNT_BTRFSROOT/${mapper_name} | grep @${mount_name} | awk '{print $2}')
+    btrfs subvolume set-default $subvolid $MOUNT_BTRFSROOT/${mapper_name}
 }
 
 ask_setup_auto_unlock()
