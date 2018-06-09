@@ -498,7 +498,7 @@ the root partition (cryptroot) first. This is done by connecting to the boot
 system (initramfs) via SSH on port 2222.
 "
 	press_any_key
-	display_alert "Rebooting..." "" ""
+	display_alert "Rebooting......................................................................." "" ""
 	reboot
 }
 
