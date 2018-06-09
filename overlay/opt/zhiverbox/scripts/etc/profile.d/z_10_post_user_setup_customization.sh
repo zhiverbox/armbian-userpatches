@@ -22,6 +22,9 @@ disable_root_account()
 "The ${RED}'root'${NC} account will be disabled on the zHIVErbox by default. So you have to 
 login with the ${GREEN}'user'${NC} account and run all admin commands via ${ORANGE}sudo${NC}."
 	passwd -l root
+	echo ""
+	press_any_key
+	
 	display_alert "Disallow SSH root login..." "/etc/ssh/sshd_config" ""
 	echo -e \
 "Changing the sshd_config file might trigger a warning after reboot when you 

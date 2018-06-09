@@ -217,10 +217,12 @@ pin_on_ipfs()
 	echo -e \
 "You can make a small contribution by adding (pinning) the downloaded realease 
 to your IPFS node! This way other zHIVErboxes don't have to rely on bitcoin.org 
-servers being available and you help making the Bitcoin ecosystem more resilient."
+servers being available and you help making the Bitcoin ecosystem more resilient.
+"
 	read -p "$UINPRFX Pin $FILENAME ($filesize) on IPFS? (y/n) " choice
 	case "$choice" in 
 	  y|Y|yes|YES )
+	    echo ""
 	  	# follow download path (cd -P) to see if the release was already taken from IPFS
 	  	cd -P $DOWNLOAD_PATH
 	  	local current_dir=$(pwd)
@@ -460,7 +462,7 @@ draw conclusions by analyzing the Tor traffic for specific timing patterns.)
 	display_alert "Installing binaries..." "/usr/local/bin/${daemonbinname} /usr/local/bin/${clibinname}" ""
 	mkdir -p $bindir 2>/dev/null
 	install -o root -g root -m 0755 $instdir/bin/bitcoind $bindir/${daemonbinname} 2>/dev/null
-	ln -s  $bindir/${daemonbinname} /usr/local/bin/
+	ln -sf  $bindir/${daemonbinname} /usr/local/bin/
 	install -o root -g root -m 0755 $instdir/bin/bitcoin-cli $bindir/${clibinname} 2>/dev/null
 	# create a wrapper script for the client
 	rm /usr/local/bin/${clibinname} 2>/dev/null

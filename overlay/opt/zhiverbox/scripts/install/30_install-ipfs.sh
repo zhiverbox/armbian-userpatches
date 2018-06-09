@@ -361,6 +361,7 @@ start_ipfs_daemon()
 	systemctl --no-pager status ipfsd
 	
 	display_alert "IPFS installation complete. Check your connection with:" "ipfs swarm peers" "ext"
+	echo ""
 	press_any_key
 }
 
