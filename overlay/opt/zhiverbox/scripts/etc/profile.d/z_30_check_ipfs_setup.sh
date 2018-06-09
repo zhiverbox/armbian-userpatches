@@ -26,7 +26,6 @@ ctrl_c()
     trap '' SIGINT
     echo
     echo -n "Aborted. Press RETURN..."
-    return
 }
 
 opt_out()
@@ -35,13 +34,12 @@ opt_out()
     echo "Admin privileges (sudo) required."
     sudo mkdir -p $(dirname $NO_REMIND_SETUP_FILE)
     sudo touch $NO_REMIND_SETUP_FILE
-    return
 }
 
 # main script
 
 # if IPFS is already setup as a system service, silently return
-[[ -n $(systemctl status ipfsd.service 2>/dev/null) || -n $(ipfs id) ]] && return
+[[ -n $(systemctl status ipfsd.service 2>/dev/null) || -n $(ipfs id 2>/dev/null) ]] && return
 
 # if user opted out of setup reminder, silently return
 [[ -f $NO_REMIND_SETUP_FILE ]] && return
@@ -66,7 +64,8 @@ while : ; do
 			trap user_abort RETURN;
 			trap ctrl_c SIGINT;
 			
-			bash $ZHIVERBOX_HOME/scripts/install/10_install-ipfs.sh && SUCCESS=true;
+			# run the installer
+			bash $ZHIVERBOX_HOME/scripts/install/30_install-ipfs.sh && SUCCESS=true;
 			
 			# undo traps
 			trap - RETURN

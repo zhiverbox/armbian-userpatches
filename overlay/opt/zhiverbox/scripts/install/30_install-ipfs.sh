@@ -228,14 +228,14 @@ setup_daemon()
 	display_alert "Adding '$default_user' account to '$IPFS_GROUP' group ..." "usermod --append --groups $IPFS_GROUP $default_user" ""
 	usermod --append --groups $IPFS_GROUP $default_user
 	
-	# Add IPFS_PATH to default user's .bashrc
-	local default_user_bashrc=/home/$default_user/.bashrc
-	display_alert "Adding IPFS_PATH to user's .bashrc ..." "$default_user_bashrc" ""
-	if grep -q IPFS_PATH $default_user_bashrc; then
-		sed -i "s|.*export IPFS_PATH=.*|export IPFS_PATH=$IPFS_DATADIR|" $default_user_bashrc
+	# Add IPFS_PATH to default bashrc
+	local default_bashrc=/etc/bash.bashrc
+	display_alert "Adding IPFS_PATH default bashrc ..." "$default_bashrc" ""
+	if grep -q IPFS_PATH $default_bashrc; then
+		sed -i "s|.*export IPFS_PATH=.*|export IPFS_PATH=$IPFS_DATADIR|" $default_bashrc
 	else
-		echo "# location of the IPFS repository (needed by the 'ipfs' command)" >> $default_user_bashrc
-		echo "export IPFS_PATH=$IPFS_DATADIR" >> $default_user_bashrc
+		echo "# location of the IPFS repository (needed by the 'ipfs' command)" >> $default_bashrc
+		echo "export IPFS_PATH=$IPFS_DATADIR" >> $default_bashrc
 	fi
 
 	if [[ ! -f $IPFS_DATADIR/config ]]; then
@@ -355,7 +355,7 @@ start_ipfs_daemon()
 {
 	display_alert "Starting IPFS daemon..." "systemctl start ipfsd" ""
 	systemctl start ipfsd
-	systemctl status ipfsd
+	systemctl --no-pager status ipfsd
 	
 	display_alert "IPFS installation complete. Check your connection with:" "ipfs swarm peers" "ext"
 	press_any_key
