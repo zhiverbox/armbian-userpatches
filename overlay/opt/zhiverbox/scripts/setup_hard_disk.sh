@@ -15,6 +15,9 @@ if [[ $EUID != 0 ]]; then
     exit $?
 fi
 
+# default mount options valid for all file system types
+FSOPTS="defaults,noatime,nodiratime"
+
 DISK=$1
 PART=${DISK}1
 NO_REMIND_SETUP_FILE=/etc/zhiverbox/.no_remind_hard_disk_setup
@@ -75,16 +78,18 @@ unlock_part()
     dmsetup info -c
     if [[ -b /dev/mapper/$mapper_name ]]; then
     	FSTYPE=$(blkid -s TYPE -o value /dev/mapper/${mapper_name})
-    	FSOPTS="defaults,noatime,nodiratime"
         mkdir -p /mnt/$mount_name
         case $FSTYPE in
         	btrfs )
         		# mount default subvolume on $mount_name
+        		umount /mnt/$mount_name 2>/dev/null
         		mount -o "$FSOPTS,compress-force=lzo" /dev/mapper/$mapper_name /mnt/$mount_name;
         		# mount root volume on $MOUNT_BTRFSROOT/$mapper_name
+        		umount $MOUNT_BTRFSROOT/$mapper_name 2>/dev/null
         		mount -o "$FSOPTS,compress-force=lzo,subvolid=0,x-mount.mkdir" /dev/mapper/$mapper_name $MOUNT_BTRFSROOT/$mapper_name;;
         	* ) 
-        		mount -o "$FSOPTS" /dev/mapper/$mapper_name /mnt/$mount_name;;
+        		umount /mnt/$mount_name 2>/dev/null
+        		mount -o "$FSOPTS,x-mount.mkdir" /dev/mapper/$mapper_name /mnt/$mount_name;;
         esac
     else
         echo "Could not unlock hard disk. You may consider reformating the disk if the problem persists."
@@ -209,11 +214,17 @@ make_partition()
 
 make_filesystem()
 {
+    FSTYPE=btrfs
     echo ""
-    display_alert "Creating btrfs filesystem on $mount_name disk:" "mkfs.btrfs -f /dev/mapper/${mapper_name}" ""
-    mkfs.btrfs -f -L ${mapper_name}-$(hostname) /dev/mapper/${mapper_name}
-    display_alert "Creating @${mount_name} subvolume on $mount_name disk:" "btrfs subvolume create /mnt/${mount_name}/@${mount_name}" ""
-    btrfs subvolume create /mnt/${mount_name}/@${mount_name}
+    display_alert "Creating $FSTYPE filesystem on $mount_name disk:" "mkfs.$FSTYPE -f /dev/mapper/${mapper_name}" ""
+    mkfs.$FSTYPE -f -L ${mapper_name}-$(hostname) /dev/mapper/${mapper_name}
+    
+    # mount under /run/.btrfsroot/ first
+    mount -o "$FSOPTS,compress-force=lzo,subvolid=0,x-mount.mkdir" /dev/mapper/$mapper_name $MOUNT_BTRFSROOT/$mapper_name
+    
+    # create a subvolume
+    display_alert "Creating @${mount_name} subvolume on ${mapper_name} disk:" "btrfs subvolume create $MOUNT_BTRFSROOT/${mapper_name}/@${mount_name}" ""
+    btrfs subvolume create $MOUNT_BTRFSROOT/${mapper_name}/@${mount_name}
 }
 
 ask_setup_auto_unlock()
@@ -494,4 +505,3 @@ if $(check_part_is_luks $PART); then
 else
     do_format_disk
 fi
-ask_relocate_vardir
