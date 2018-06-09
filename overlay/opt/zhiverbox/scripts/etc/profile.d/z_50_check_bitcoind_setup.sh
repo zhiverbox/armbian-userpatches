@@ -26,7 +26,6 @@ ctrl_c()
     trap '' SIGINT
     echo
     echo -n "Aborted. Press RETURN..."
-    return
 }
 
 opt_out()
@@ -35,13 +34,12 @@ opt_out()
     echo "Admin privileges (sudo) required."
     sudo mkdir -p $(dirname $NO_REMIND_SETUP_FILE)
     sudo touch $NO_REMIND_SETUP_FILE
-    return
 }
 
 # main script
 
 # if bitcoin is already setup as a system service, silently return
-[[ -n $(systemctl status bitcoind.service) || -n $(systemctl status test_bitcoind.service) ]] && return
+[[ -n $(systemctl status bitcoind.service 2>/dev/null) || -n $(systemctl status test_bitcoind.service 2>/dev/null) ]] && return
 
 # if user opted out of setup reminder, silently return
 [[ -f $NO_REMIND_SETUP_FILE ]] && return
@@ -63,23 +61,19 @@ while : ; do
 			trap user_abort RETURN;
 			trap ctrl_c SIGINT;
 			
+			# run the installer
 			bash $ZHIVERBOX_HOME/scripts/install/50_install-bitcoind.sh && SUCCESS=true;
 			
 			# undo traps
 			trap - RETURN
 			trap - SIGINT
 			break;;
-		2) 	opt_out && SUCCESS=true;
-			break;;
-		3) 	SUCCESS=false;
-		    break;;
+		2) 	opt_out && return;; # exit this script
+		3) 	SUCCESS = false; break;;
 	esac
 done
 
-if [[ $SUCCESS ]]; then
-
-	# dont' ask to install again on next login
-	sudo touch $NO_REMIND_SETUP_FILE
+if [[ $SUCCESS = true ]]; then
 
 	# reload the shell with the new group meberships (requires password)
 	display_alert "Re-login as '$USER' to apply new group memberships" "su -l $USER" ""
