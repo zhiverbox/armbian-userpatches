@@ -484,8 +484,18 @@ relocate_vardir_btrfs()
 	disable_log2ram
 	
 	echo ""
-	display_alert "Please reboot now to finish the hard disk setup!" "sudo reboot" "todo"
+	display_alert "We will reboot now to finish the hard disk setup!" "sudo reboot" "todo"
 	echo ""
+	press_any_key
+	display_alert "REMINDER: First unlock cryptroot again after reboot!" "" ""
+	echo -e \
+"Whenever you reboot the zHIVErbox (deliberately or not), you'll have to unlock
+the root partition (cryptroot) first. This is done by connecting to the boot
+system (initramfs) via SSH on port 2222.
+"
+	press_any_key
+	display_alert "Rebooting..." "" ""
+	reboot
 }
 
 disable_log2ram()
