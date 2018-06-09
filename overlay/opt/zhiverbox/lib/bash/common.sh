@@ -112,6 +112,8 @@ new_screen()
     echo "" && clear
 }
 
+# should be called with eval in a sourcing script
+# eval $(assert_interactive)
 assert_interactive()
 {
 	if [ "$-" != "${-#*i}" ]; then
@@ -119,17 +121,19 @@ assert_interactive()
 		echo -n ""
 	else
 		#silently exit
-		return
+		echo -n "return 0"
 	fi
 }
 
+# should be called with eval in a sourcing script
+# eval $(assert_hard_disk_mounted /dev/sda1)
 assert_hard_disk_mounted()
 {
 	DISK=$1
 	local disk_mounts=$(lsblk -n -o MOUNTPOINT $DISK | tr -d " \t\n\r")
     
     # silently exit if disk is not mounted
-    [[ -z $disk_mounts ]] && return
+    [[ -z $disk_mounts ]] && echo -n "return 0"
 }
 
 # base58 encoding from https://github.com/grondilu/bitcoin-bash-tools/blob/master/bitcoin.sh

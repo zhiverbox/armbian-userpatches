@@ -5,10 +5,10 @@ export ZHIVERBOX_HOME=/opt/zhiverbox
 . $ZHIVERBOX_HOME/lib/bash/common.sh
 
 # only do this for interactive shells
-assert_interactive
+eval $(assert_interactive)
 
 # only do this when hard disk is mounted
-assert_hard_disk_mounted /dev/sda1
+eval $(assert_hard_disk_mounted /dev/sda1)
 
 NO_REMIND_SETUP_FILE=/etc/zhiverbox/.no_remind_bitcoind_setup
 
