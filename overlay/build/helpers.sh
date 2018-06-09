@@ -632,3 +632,14 @@ motd_change_35_tips()
     echo "" && display_alert "Changing motd sysinfo" "$motdfile" ""
     echo "DON'T TRUST. VERIFY!" >> /etc/update-motd.d/quotes.txt
 }
+
+motd_add_36_donations()
+{
+    local motdfile="/etc/update-motd.d/36-donations"
+    echo "" && display_alert "Adding motd donations" "$motdfile" ""
+    local script=/opt/zhiverbox/scripts/$motdfile
+    ln -s $script /etc/update-motd.d/
+    chmod +x $script
+    
+    cat $motdfile
+}

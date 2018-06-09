@@ -138,6 +138,7 @@ Install_zHIVErbox() {
     motd_change_30_sysinfo
     motd_add_31_dnets
     motd_change_35_tips
+    motd_add_36_donations
     
     # update command not found database
     /usr/sbin/update-command-not-found
