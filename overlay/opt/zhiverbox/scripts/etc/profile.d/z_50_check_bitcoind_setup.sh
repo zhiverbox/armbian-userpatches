@@ -71,7 +71,8 @@ while : ; do
 			break;;
 		2) 	opt_out && SUCCESS=true;
 			break;;
-		3) 	break;;
+		3) 	SUCCESS=false;
+		    break;;
 	esac
 done
 

@@ -41,7 +41,7 @@ opt_out()
 # main script
 
 # if IPFS is already setup as a system service, silently return
-[[ -n $(systemctl status ipfsd.service) && -n $(ipfs id) ]] && return
+[[ -n $(systemctl status ipfsd.service 2>/dev/null) || -n $(ipfs id) ]] && return
 
 # if user opted out of setup reminder, silently return
 [[ -f $NO_REMIND_SETUP_FILE ]] && return
