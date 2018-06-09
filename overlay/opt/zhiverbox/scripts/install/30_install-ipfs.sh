@@ -244,6 +244,9 @@ setup_daemon()
 		sudo -H -u $IPFS_USER ipfs init
 	fi
 	
+	# export IPFS_PATH for the current login session as well in case preceding scripts need it
+	export IPFS_PATH=$IPFS_DATADIR 
+	
 	display_alert "Setting up IPFS and IPNS FUSE mount points..." "/ipfs and /ipns" "" 
 	sudo -H -u $IPFS_USER ipfs config Mounts.FuseAllowOther --bool true
 	# Allow non-root users to specify the allow_other mount option
