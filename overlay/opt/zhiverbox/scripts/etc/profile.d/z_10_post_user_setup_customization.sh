@@ -103,7 +103,7 @@ the 'root system'.
        boot system (initramfs)
 "
 	else
-		display_alert "Remove default public and private key" "rm dropbeardir/id_ecdsa*"
+		display_alert "Remove default public and private key" "rm $dropbeardir/id_ecdsa*"
 		rm $dropbeardir/id_ecdsa*
 		display_alert "Copy individual public key" "cp $SSH_USER_KEY $dropbeardir"
 		cp $SSH_USER_KEY $dropbeardir
