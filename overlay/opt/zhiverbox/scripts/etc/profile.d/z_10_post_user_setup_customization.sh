@@ -23,6 +23,24 @@ disable_root_account()
 login with the ${GREEN}'user'${NC} account and run all admin commands via ${ORANGE}sudo${NC}."
 	passwd -l root
 	display_alert "Disallow SSH root login..." "/etc/ssh/sshd_config" ""
+	echo -e \
+"${ORANGE}Changing the sshd_config file might trigger a warning after reboot when you 
+try to connect via SSH again. The warning will look like:${NC}
+
+    @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+    @    WARNING: REMOTE HOST IDENTIFICATION HAS CHANGED!     @
+    @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+    IT IS POSSIBLE THAT SOMEONE IS DOING SOMETHING NASTY!
+    Someone could be eavesdropping on you right now (man-in-the-middle attack)!
+    It is also possible that a host key has just been changed.
+"
+	press_any_key
+	echo -e \
+"${GREEN}The latter is the case.${NC} It's because we changed the config to disable the 'root 
+account' login. Just follow the instructions in the warning when you see it, 
+using the 'ssh-keygen -f' command to fix this.
+"
+	press_any_key
 	sed -i 's/PermitRootLogin yes/PermitRootLogin no/' /etc/ssh/sshd_config
 	display_alert "Logins with 'root' via SSH or any other console have been disabled." "" "ext"
 	echo ""
