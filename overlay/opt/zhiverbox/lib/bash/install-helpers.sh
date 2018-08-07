@@ -108,8 +108,3 @@ ask_install_path()
     	ask_install_path $1 "$2"
     fi
 }
-
-get_local_cjdns_addr()
-{
-    echo $(ip add | grep "inet6 fc" | awk '{ print $2 }' | sed 's/\/8//')
-}

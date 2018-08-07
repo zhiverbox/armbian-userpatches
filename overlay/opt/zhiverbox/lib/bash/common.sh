@@ -160,6 +160,21 @@ generatePass20()
     encodeBase58 $rand | cut -c1-20 | tr -d " \t\n\r" > $TMP_PASS
 }
 
+get_local_ipv4_addr()
+{
+	echo $(ip route get 1 | awk '{print $NF;exit}')
+}
+
+get_local_cjdns_addr()
+{
+    echo $(ip add | grep "inet6 fc" | awk '{ print $2 }' | sed 's/\/8//')
+}
+
+get_local_ssh_onion_addr()
+{
+    echo $(cat /var/lib/tor/ssh_hidden_service/hostname)
+}
+
 # compare dot separated version strings
 # http://ask.xmodulo.com/compare-two-version-numbers.html
 function version_gt() { test "$(echo "$@" | tr " " "\n" | sort -V | head -n 1)" != "$1"; }

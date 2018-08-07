@@ -18,10 +18,10 @@ disable_root_account()
 {
 	# zHIVErbox disables root, so all admin actions are audited (/var/log/auth.log)
 	display_alert "Disabling root account now..." "passwd -l root" ""
-	echo -e \
-"The ${RED}'root'${NC} account will be disabled on the zHIVErbox by default. So you have to 
-login with the ${GREEN}'user'${NC} account and run all admin commands via ${ORANGE}sudo${NC}."
 	passwd -l root
+	echo -e \
+"The ${RED}'root'${NC} account is disabled now on the zHIVErbox. From now on you have to 
+login with the ${GREEN}'user'${NC} account and run all admin commands via ${ORANGE}sudo${NC}."
 	echo ""
 	press_any_key
 	
@@ -74,8 +74,8 @@ enable_ssh_pubkey_for_user()
 	
 		# show explanation how to connect
 		echo -e \
-"From now on you can only login to this zHIVErbox via the ${GREEN}'user'${NC} account 
-via pubkey authentication only. Assuming the private key is in the ~/.ssh/
+"From now on you can only login to this zHIVErbox with the ${GREEN}'user'${NC} account 
+and pubkey authentication only. Assuming the private key is in the ~/.ssh/
 directory of your workstation, you can connect to this zHIVErbox via:
     
     ${ORANGE}ssh user@`hostname`${NC}
