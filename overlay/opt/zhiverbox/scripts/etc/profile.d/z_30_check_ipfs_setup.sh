@@ -77,4 +77,16 @@ while : ; do
 	esac
 done
 
-[[ ! $SUCCESS ]] && user_abort
+if [[ $SUCCESS = true ]]; then
+
+	# reload the shell with the new group meberships (requires password)
+	display_alert "Re-login as '$USER' to apply new group memberships" "su -l $USER" ""
+	su -l $USER
+	
+	# refresh the group memberships without login (creates two more netsted subshells)
+	#newgrp -
+	#newgrp $USER
+	
+else
+    user_abort
+fi
