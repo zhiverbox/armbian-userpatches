@@ -313,7 +313,7 @@ installation."
     # mount crypt device via fstab
     add_modify_fstab
     
-    # modify /etc/update-motd.d/30-sysinfo
+    # modify /etc/update-motd.d/30-armbian-sysinfo
     modify_motd_sysinfo
 }
 
@@ -385,7 +385,7 @@ add_modify_fstab()
 modify_motd_sysinfo()
 {   
     echo ""
-    local target_file="/etc/update-motd.d/30-sysinfo"
+    local target_file="/etc/update-motd.d/30-armbian-sysinfo"
     sed -i "/^storage=/c\storage=/dev/mapper/${mapper_name}" $target_file
     display_alert "Changed storage device to monitor in:" "$target_file" "info"
 }
@@ -485,7 +485,7 @@ relocate_vardir_btrfs()
 	display_alert "Relocation of /var complete." "" "info"
 	
 	# disable log2ram service
-	disable_log2ram
+	disable_ramlog
 	
 	echo ""
 	display_alert "We will reboot now to finish the hard disk setup!" "sudo reboot" "todo"
@@ -502,15 +502,16 @@ system (initramfs) via SSH on port 2222.
 	reboot
 }
 
-disable_log2ram()
+disable_ramlog()
 {
 	echo ""
-	display_alert "Disabling log2ram service..." "systemctl disable log2ram" ""
+	display_alert "Disabling armbian-ramlog service..." "systemctl disable armbian-ramlog" ""
 	echo -e \
-"log2ram is useful to protect SD-Cards from too many frequent writes, but since
-we moved /var/log to the hard disk, we can disable log2ram."
+"armbian-ramlog is useful to protect SD-Cards from too many frequent writes, but since
+we moved /var/log to the hard disk, we can disable armbian-ramlog."
 	echo ""
-	systemctl disable log2ram
+	systemctl disable armbian-ramlog
+	systemctl disable armbian-zram-config
 }
 
 # main script

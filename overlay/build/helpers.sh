@@ -568,7 +568,7 @@ install_bitcoind_setup_assistance()
 
 motd_change_10_header()
 {
-    local motdfile="/etc/update-motd.d/10-header"
+    local motdfile="/etc/update-motd.d/10-armbian-header"
     echo "" && display_alert "Changing motd header" "$motdfile" ""
     
     local zhiverbox_art_main="toilet -f standard -W -F metal zHIVErbox"
@@ -582,7 +582,7 @@ motd_change_10_header()
 
 motd_change_30_sysinfo()
 {
-    local motdfile="/etc/update-motd.d/30-sysinfo"
+    local motdfile="/etc/update-motd.d/30-armbian-sysinfo"
     echo "" && display_alert "Changing motd sysinfo" "$motdfile" ""
     
     # modify output
@@ -598,7 +598,7 @@ motd_change_30_sysinfo()
 
 motd_add_31_dnets()
 {
-    local motdfile="/etc/update-motd.d/31-dnets"
+    local motdfile="/etc/update-motd.d/31-zhiverbox-dnets"
     echo "" && display_alert "Adding motd dnets" "$motdfile" ""
     # setup requirements
     
@@ -628,14 +628,14 @@ motd_add_31_dnets()
 
 motd_change_35_tips()
 {
-    local motdfile="/etc/update-motd.d/35-tips"
+    local motdfile="/etc/update-motd.d/35-armbian-tips"
     echo "" && display_alert "Changing motd sysinfo" "$motdfile" ""
     echo "DON'T TRUST. VERIFY!" >> /etc/update-motd.d/quotes.txt
 }
 
 motd_add_36_donations()
 {
-    local motdfile="/etc/update-motd.d/36-donations"
+    local motdfile="/etc/update-motd.d/36-zhiverbox-donations"
     echo "" && display_alert "Adding motd donations" "$motdfile" ""
     local script=/opt/zhiverbox/scripts/$motdfile
     ln -s $script /etc/update-motd.d/
