@@ -643,3 +643,12 @@ motd_add_36_donations()
     
     cat $motdfile
 }
+
+# enable save hard disk parking on shutdown
+# https://wiki.odroid.com/odroid-xu4/troubleshooting/shutdown_script
+safe_hard_disk_parking_on_shutdown()
+{
+	echo "" && display_alert "Installing safe hard disk parking fix" "https://wiki.odroid.com/odroid-xu4/troubleshooting/shutdown_script" ""
+	apt-get -y -q install hdparm mdadm
+	sudo install -o root -g root -m 0755 /tmp/overlay/lib/systemd/system-shutdown/odroid.shutdown /lib/systemd/system-shutdown/odroid.shutdown
+}

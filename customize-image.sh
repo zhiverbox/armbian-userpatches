@@ -101,6 +101,9 @@ Install_zHIVErbox() {
 		#echo "* * * * * root for i in \`pgrep \"$LITTLE_APPS\"\` ; do taskset -c -p $LITTLE_CORES \$i; done >/dev/null 2>&1" \
 		#	>>/etc/cron.d/make_dapp_processes_faster
 	fi
+	
+	# enable save hard disk parking on shutdown
+	safe_hard_disk_parking_on_shutdown
 
 	# Update smartmontools drive database, since the Odroid HC1 and HC2 use a SATA disk
 	apt-get -y -q install smartmontools
