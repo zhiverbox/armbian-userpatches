@@ -36,7 +36,7 @@ TOR_CONTROL_PORT=9052
 IPFS_TIMEOUT="5s"
 
 # check IPFS support
-if [[ -n $(ipfs --version 2>/dev/null) ]]; then
+if [[ -n $(ipfs --version 2>/dev/null) && -n $IPFS_PATH ]]; then
 	display_alert "IPFS is available" "$IPFS_PATH" ""
 	HAS_IPFS=true
 fi
