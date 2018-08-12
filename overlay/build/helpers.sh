@@ -360,7 +360,7 @@ clone_or_update_from_github()
     
     # use TOR to download from GitHub
     #GIT_CMD="torify git"
-    GIT_CMD="git"
+    GIT_CMD="torsocks git"
     
     # if source directory doesn't exist yet we have to clone from github first
     if [[ ! -d "$target_path/.git/" ]]; then
@@ -451,29 +451,116 @@ build_cjdns_from_sources()
 
 install_cjdns_service()
 {
-    display_alert "Install cjdns as system service" "" ""
-    cp $1/cjdroute /usr/bin/cjdroute
+    display_alert "Install cjdns as system service" "BEGIN" ""
+    install -o root -g root -m 0755 $1/cjdroute /usr/bin/cjdroute
     display_alert "Copied:" "/usr/bin/cjdroute" "info"
     
     # copy service files
-    cp $1/contrib/systemd/cjdns.service /etc/systemd/system/
+    install -o root -g root -m 0644 $1/contrib/systemd/cjdns.service /etc/systemd/system/
     display_alert "Copied:" "/etc/systemd/system/cjdns.service" "info"
     
-    cp $1/contrib/systemd/cjdns-resume.service /etc/systemd/system/
+    install -o root -g root -m 0644 $1/contrib/systemd/cjdns-resume.service /etc/systemd/system/
     display_alert "Copied:" "/etc/systemd/system/cjdns-resume.service" "info"
-    
-    display_alert "Install cjdns as system service" "COMPLETE" "info"
+
+	# copy zHIVErbox cjdns-dynamic.service file
+	local cjdnsdynservice="/etc/systemd/system/cjdns-dynamic.service"
+	install -o root -g root -m 0644 /tmp/overlay$cjdnsdynservice $cjdnsdynservice
+	display_alert "Copied:" "$cjdnsdynservice" "info"
+	
+	# copy cjdns-dynamic.conf example file
+	local cjdnsdynconf="/etc/cjdns-dynamic.conf"
+	install -o root -g root -m 0644 $1/contrib/python/cjdns-dynamic.conf $cjdnsdynconf
+	display_alert "Copied:" "$cjdnsdynconf" "info"
+	
+	# add kadnode example dummy
+	cat << 'EOF' >> /etc/cjdns-dynamic.conf
+# Example for KadNode .p2p names as hostname
+#[1fhhjzug91xvbsmksjnlx9cq6n8tzcs6d7fsbdv8j70cktg9nnv0.k]
+#hostname: 456a94v74k8e9pfnuhueq3p926u7a3q8dukvck4qaj1p69pvqa9g.p2p
+#port: 11921
+#password: zyplv05r98mr96wm0ry19tq7u29cql2
+
+EOF
+	
+	# create default .cjdnsadmin file for root (needed by cjdns-dynamic.service)
+    cat << 'EOF' > /root/.cjdnsadmin
+{
+    "addr": "127.0.0.1",
+    "port": 11234,
+    "password": "NONE"
+}
+EOF
+
+	display_alert "Install cjdns as system service" "COMPLETE" "info"
     echo ""
     
     # enable system services
     systemctl enable cjdns
     systemctl enable cjdns-resume
+    systemctl enable cjdns-dynamic
     
     # copy everything to /opt/src/cjdns
     mkdir -p /opt/src
     cp -r $1 /opt/src/cjdns
     
     echo ""
+}
+
+build_install_kadnode_from_sources()
+{
+	echo ""
+	display_alert "Building KadNode package from Github sources" "https://github.com/mwarning/KadNode" "info"
+	while [ ! $KADNODE_CHECKOUT_COMPLETE  ]
+    do
+        clone_or_update_from_github "KadNode" "https://github.com/mwarning/KadNode"
+    done
+    
+    local workdir=$(pwd)
+    # install kadnode according to https://github.com/mwarning/KadNode/blob/master/debian/README.md
+    apt-get -y -q install \
+    				build-essential debhelper devscripts \
+    				libmbedtls-dev libnatpmp-dev libminiupnpc-dev \
+    				libmbedtls10 fakeroot
+    cd $SRC_HOME/KadNode
+    
+    # create an unsigned package
+    dpkg-buildpackage -b -rfakeroot -us -uc
+    
+    display_alert "KadNode build from sources complete" "" "info"
+    echo ""
+    
+    # install the package
+    display_alert "Installing KadNode package" "dpkg -i ../kadnode_*_armhf.deb" "info"
+    dpkg -i ../kadnode_*_armhf.deb
+    echo ""
+    
+    # disable kadnode service (user will be asked to enabled it on first login)
+    display_alert "Disabling KadNode service by default" "systemctl disable kadnode" "info"
+    systemctl disable kadnode
+    systemctl stop kadnode
+    
+    # create a system user for kadnode
+    KADNODE_USER=kadnode
+	KADNODE_HOME=/run/kadnode
+	KADNODE_CONFIG=/etc/kadnode/kadnode.conf
+	display_alert "Creating system user 'kadnode' ..." "/etc/passwd" ""
+    if [[ -z $(getent passwd $KADNODE_USER >/dev/null) ]]; then
+        adduser --quiet \
+		    --system \
+		    --disabled-password \
+		    --home $KADNODE_HOME \
+		    --no-create-home \
+		    --shell /bin/false \
+		    --group \
+		    $KADNODE_USER
+	fi
+	
+	# add or modify --user argument in kadnode config
+	if grep -q '^--user' $KADNODE_CONFIG; then
+		sed -i "s/^--user .*$/--user $KADNODE_USER/" $KADNODE_CONFIG
+	else
+		echo "--user $KADNODE_USER" >> $KADNODE_CONFIG
+	fi
 }
 
 make_initramfs_motd()
@@ -554,6 +641,14 @@ install_ipfs_setup_assistance()
 {
     local script=/opt/zhiverbox/scripts/etc/profile.d/z_30_check_ipfs_setup.sh
     echo "" && display_alert "Install IPFS setup assistance script" "$script" ""
+    ln -s $script /etc/profile.d/
+    chmod +x $script
+}
+
+install_kadnode_setup_assistance()
+{
+    local script=/opt/zhiverbox/scripts/etc/profile.d/z_31_check_kadnode_setup.sh
+    echo "" && display_alert "Install KadNode setup assistance script" "$script" ""
     ln -s $script /etc/profile.d/
     chmod +x $script
 }

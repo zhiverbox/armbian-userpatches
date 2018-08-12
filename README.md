@@ -36,6 +36,7 @@ High-level differences with `Vanilla Armbian`:
 * Filter (proxy) for fine-graned access to Tor control port (onion grater)
 * Tor-based time syncing instead of NTP (tordate and htpdate)
 * Ships with Cjdns (OSI-Layer-3 meshnet routing software) by default
+* Ships with KadNode (DHT based, decentalized DNS alternative) by default
 * Ships with IPFS (InterPlanetary File System) by default
 
 For details please see the Security Design (SECURITY.md).

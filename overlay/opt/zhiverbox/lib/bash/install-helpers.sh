@@ -29,7 +29,7 @@ clone_or_update_from_github()
     echo ""
     
     # use TOR to download from GitHub
-    GIT_CMD="torsocks git"
+    GIT_CMD="sudo -u nobody torsocks git"
     #GIT_CMD="git"
     
     # if source directory doesn't exist yet we have to clone from github first
@@ -37,6 +37,8 @@ clone_or_update_from_github()
     if [[ ! -d "$target_path/.git/" ]]; then
         display_alert "Clone $name" "$GIT_CMD clone $branch --recursive ${origin}.git $target_path" ""
         echo ""
+        mkdir -p $target_path 2>/dev/null
+        chown nobody:nogroup $target_path
         $GIT_CMD clone $branch --recursive ${origin}.git $target_path
     fi
     

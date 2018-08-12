@@ -121,6 +121,9 @@ Install_zHIVErbox() {
     # install cjdns
     install_cjdns
     
+    # install kadnode
+    build_install_kadnode_from_sources
+    
     #
     install_zhiverbox_scripts
     
@@ -129,6 +132,9 @@ Install_zHIVErbox() {
     
     # hard disk setup assistance
     install_disk_setup_assistance
+    
+    # KadNode setup assitance
+    install_kadnode_setup_assistance
     
     # IPFS setup assistance
     install_ipfs_setup_assistance

@@ -1,0 +1,14 @@
+[Unit]
+Description=cjdns-dynamic: make cjdns reliably connect to remote nodes with dynamic IP addresses, identified by a DNS name.
+Wants=network.target
+After=cjdns.service
+
+[Service]
+ProtectSystem=true
+SyslogIdentifier=cjdns-dynamic
+ExecStart=/usr/bin/python /opt/src/cjdns/contrib/python/dynamicEndpoints.py /etc/cjdns-dynamic.conf
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
+
