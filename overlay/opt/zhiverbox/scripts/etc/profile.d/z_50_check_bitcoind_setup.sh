@@ -69,7 +69,7 @@ while : ; do
 			trap - SIGINT
 			break;;
 		2) 	opt_out && return;; # exit this script
-		3) 	SUCCESS = false; break;;
+		3) 	SUCCESS=false; break;;
 	esac
 done
 
