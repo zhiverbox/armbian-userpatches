@@ -76,6 +76,9 @@ generate_key()
 		cat $genkeyout | grep .p2p | awk '{print $3}' > $KADNODE_PUBKEY
 		echo "Wrote public key to $KADNODE_PUBKEY" | sed "s/^/${SED_INTEND}/"
 	fi
+	
+	# adjust config to load key on kadnode startup
+	sed -i "s~.*--bob-load-key .*~--bob-load-key $KADNODE_PRIVKEY~" $KADNODE_CONFIG
 }
 
 explain_key() {
