@@ -396,26 +396,23 @@ clone_or_update_from_github()
 
 install_cjdns()
 {
+    # TODO: find out why this sometimes hangs at some point and never finishes
+    build_cjdns_from_sources
+    
+    # install from built sources
+    install_cjdns_service /opt/src/cjdns
+    
+    # install from pre-compiled sources if above steps hang on your build system
+    #install_cjdns_service /tmp/overlay/build/precompiled/cjdns-v20.1-armhf
+}
+
+build_cjdns_from_sources()
+{   
     apt-get -y -q install build-essential python2.7 git
     apt-get -y -q install nodejs
     #apt-get -y -q install libuv0.10 libuv0.10-dev 
     #apt-get -y -q install libuv1 libuv1-dev
-    
-    #pre-load github sources to target system to reduce download time
-    #cp -r /tmp/overlay/opt/src/cjdns /tmp/cache/opt/src/cjdns
-    
-    # doesn't work in qemu.
-    # TODO: find out why this hangs a some point and never finishes
-    #build_cjdns_from_sources
-    
-    # install from pre-compiled sources
-    install_cjdns_service /tmp/overlay/build/precompiled/cjdns-v20.1-armhf
-}
-
-# doesn't work in qemu.
-# TODO: find out why this hangs a some point and never finishes
-build_cjdns_from_sources()
-{    
+ 
     while [ ! $CJDNS_CHECKOUT_COMPLETE  ]
     do
         clone_or_update_from_github "cjdns" "https://github.com/cjdelisle/cjdns"
@@ -424,18 +421,9 @@ build_cjdns_from_sources()
     local workdir=$(pwd)
     # install cjdns according to https://github.com/cjdelisle/cjdns
     cd $SRC_HOME/cjdns
-    display_alert "Install cjdns:" "torify ./do" ""
-    # NO_TEST=1 torify ./do
-    NO_TEST=1 ./do
-    cp ./cjdroute /usr/bin/cjdroute
-    
-    # copy service files
-    display_alert "Install cjdns as system service" "" ""
-    cp ./contrib/systemd/cjdns.service /etc/systemd/system/
-    display_alert "Installed:" "/etc/systemd/system/cjdns.service" "info"
-    cp ./contrib/systemd/cjdns-resume.service /etc/systemd/system/
-    display_alert "Installed:" "/etc/systemd/system/cjdns-resume.service" "info"
-    echo ""
+    display_alert "Building cjdns:" "NO_TEST=1 torsocks ./do" ""
+    NO_TEST=1 torsocks ./do
+    #NO_TEST=1 ./do
     
     # copy everything to persistent location
     cp -r $SRC_HOME/cjdns /opt/src/
@@ -443,10 +431,7 @@ build_cjdns_from_sources()
     # back to working directory
     cd $workdir
     
-    # reload daemon
-    #systemctl daemon-reload
-    
-    display_alert "cjdns built from sources complete" "" "info"
+    display_alert "cjdns built from sources" "COMPLETE" "info"
 }
 
 install_cjdns_service()
