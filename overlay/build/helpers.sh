@@ -426,6 +426,7 @@ build_cjdns_from_sources()
     #NO_TEST=1 ./do
     
     # copy everything to persistent location
+    mkdir -p /opt/src 2>/dev/null
     cp -r $SRC_HOME/cjdns /opt/src/
     
     # back to working directory
@@ -483,10 +484,6 @@ EOF
     systemctl enable cjdns
     systemctl enable cjdns-resume
     systemctl enable cjdns-dynamic
-    
-    # copy everything to /opt/src/cjdns
-    mkdir -p /opt/src
-    cp -r $1 /opt/src/cjdns
     
     echo ""
 }
