@@ -297,6 +297,12 @@ EOF
 	
 }
 
+torify_git()
+{
+	display_alert "Torifying git..." "git config --system http.proxy 'socks5://127.0.0.1:9050'"
+	git config --system http.proxy 'socks5://127.0.0.1:9050'
+}
+
 security_hardening()
 {
 	display_alert "Applying additional zHIVErbox security hardenings..." "" ""
