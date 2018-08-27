@@ -549,6 +549,9 @@ build_install_kadnode_from_sources()
 	else
 		echo "--user $KADNODE_USER" >> $KADNODE_CONFIG
 	fi
+	
+	# make /etc/kadnode/peers.txt writeable for system user kadnode
+	chown kadnode:kadnode /etc/kadnode/peers.txt 
 }
 
 make_initramfs_motd()
