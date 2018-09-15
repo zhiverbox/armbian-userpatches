@@ -71,6 +71,7 @@ Install_zHIVErbox() {
 	install_tor
 	torify_wget
 	torify_git
+	torify_non_socks
 	install_tor_grater
 	setup_tor_enforcement_dns
 	setup_tor_enforcement_ferm

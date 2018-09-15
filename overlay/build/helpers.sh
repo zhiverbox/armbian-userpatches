@@ -303,6 +303,24 @@ torify_git()
     git config --system http.proxy 'socks5://127.0.0.1:9050'
 }
 
+torify_non_socks()
+{
+    # not all applications support the socks5 protocol (e.g. npm)
+    # we'll offer a local http proxy that can be used by those apps who don't speak socks5
+    # see https://medium.com/@jamesjefferyuk/how-to-use-npm-behind-a-socks-proxy-c81d6f51dff8
+    display_alert "Installing Torified HTTP Proxy for non-Socks applications..." "apt-get -y -q install polipo"
+    apt-get -y --show-progress -o DPKG::Progress-Fancy=1 install polipo
+
+    cat >> /etc/polipo/config << 'EOF'
+socksParentProxy = "127.0.0.1:9050"
+socksProxyType = socks5
+# listen on localhost (::1) only
+proxyAddress = "::1"
+proxyPort = 8123
+EOF
+
+}
+
 security_hardening()
 {
     display_alert "Applying additional zHIVErbox security hardenings..." "" ""
