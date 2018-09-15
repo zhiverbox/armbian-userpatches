@@ -16,18 +16,18 @@ SSH_USER_KEY=/etc/zhiverbox/id_ecdsa.pub
 
 disable_root_account()
 {
-	# zHIVErbox disables root, so all admin actions are audited (/var/log/auth.log)
-	display_alert "Disabling root account now..." "passwd -l root" ""
-	passwd -l root
-	echo -e \
-"The ${RED}'root'${NC} account is disabled now on the zHIVErbox. From now on you have to 
+    # zHIVErbox disables root, so all admin actions are audited (/var/log/auth.log)
+    display_alert "Disabling root account now..." "passwd -l root" ""
+    passwd -l root
+    echo -e \
+"The ${RED}'root'${NC} account is disabled now on the zHIVErbox. From now on you have to
 login with the ${GREEN}'user'${NC} account and run all admin commands via ${ORANGE}sudo${NC}."
-	echo ""
-	press_any_key
-	
-	display_alert "Disallow SSH root login..." "/etc/ssh/sshd_config" ""
-	echo -e \
-"Changing the sshd_config file might trigger a warning after reboot when you 
+    echo ""
+    press_any_key
+
+    display_alert "Disallow SSH root login..." "/etc/ssh/sshd_config" ""
+    echo -e \
+"Changing the sshd_config file might trigger a warning after reboot when you
 try to connect via SSH again. ${MAGENTA}The warning will look like:${NC}
 
     @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
@@ -37,116 +37,116 @@ try to connect via SSH again. ${MAGENTA}The warning will look like:${NC}
     Someone could be eavesdropping on you right now (man-in-the-middle attack)!
     It is also possible that a host key has just been changed.
 "
-	press_any_key
-	echo -e \
-"${GREEN}The latter is the case.${NC} It's because we changed the config to disable the 'root 
-account' login. Just follow the instructions in the warning when you see it, 
+    press_any_key
+    echo -e \
+"${GREEN}The latter is the case.${NC} It's because we changed the config to disable the 'root
+account' login. Just follow the instructions in the warning when you see it,
 using the 'ssh-keygen -f' command to fix this.
 "
-	press_any_key
-	sed -i 's/PermitRootLogin yes/PermitRootLogin no/' /etc/ssh/sshd_config
-	display_alert "Logins with 'root' via SSH or any other console have been disabled." "" "ext"
-	echo ""
-	press_any_key
+    press_any_key
+    sed -i 's/PermitRootLogin yes/PermitRootLogin no/' /etc/ssh/sshd_config
+    display_alert "Logins with 'root' via SSH or any other console have been disabled." "" "ext"
+    echo ""
+    press_any_key
 }
 
 enable_ssh_pubkey_for_user()
 {
-	# copy ssh pubkey for user login placed by zHIVErbox installer
-	authkeysfile=/home/user/.ssh/authorized_keys
-	display_alert "Enabling SSH pubkey authentication for 'user' account..." "$authkeysfile" ""
-	
-	if [ -f $SSH_USER_KEY ]; then
-		sudo -u user mkdir -m 700 /home/user/.ssh 2>/dev/null
-		sudo -u user install -m 600 /dev/null $authkeysfile
-		echo "# public key provided by zHIVErbox installer" > $authkeysfile
-		cat $SSH_USER_KEY >> $authkeysfile
-		display_alert "Enabled SSH public key authentication for account:" "user" "ext"
-		display_alert "Disabling SSH password authentication for all accounts..." "/etc/ssh/sshd_config" ""
-		sed -i 's/^.*PasswordAuthentication\s.*$/PasswordAuthentication no/' /etc/ssh/sshd_config
-		display_alert "Disabled SSH password logins" "" "ext"
-		echo ""
-		press_any_key
-	
-		# fetch various local addresses
-		cjdnsaddr=$(ip add | grep "inet6 fc" | awk '{ print $2 }' | sed 's/\/8//')
-		onionaddr=$(cat /var/lib/tor/ssh_hidden_service/hostname)
-		ipv4addr=$(ip route get 1 | awk '{print $NF;exit}')
-	
-		# show explanation how to connect
-		echo -e \
-"From now on you can only login to this zHIVErbox with the ${GREEN}'user'${NC} account 
+    # copy ssh pubkey for user login placed by zHIVErbox installer
+    authkeysfile=/home/user/.ssh/authorized_keys
+    display_alert "Enabling SSH pubkey authentication for 'user' account..." "$authkeysfile" ""
+
+    if [ -f $SSH_USER_KEY ]; then
+        sudo -u user mkdir -m 700 /home/user/.ssh 2>/dev/null
+        sudo -u user install -m 600 /dev/null $authkeysfile
+        echo "# public key provided by zHIVErbox installer" > $authkeysfile
+        cat $SSH_USER_KEY >> $authkeysfile
+        display_alert "Enabled SSH public key authentication for account:" "user" "ext"
+        display_alert "Disabling SSH password authentication for all accounts..." "/etc/ssh/sshd_config" ""
+        sed -i 's/^.*PasswordAuthentication\s.*$/PasswordAuthentication no/' /etc/ssh/sshd_config
+        display_alert "Disabled SSH password logins" "" "ext"
+        echo ""
+        press_any_key
+
+        # fetch various local addresses
+        cjdnsaddr=$(ip add | grep "inet6 fc" | awk '{ print $2 }' | sed 's/\/8//')
+        onionaddr=$(cat /var/lib/tor/ssh_hidden_service/hostname)
+        ipv4addr=$(ip route get 1 | awk '{print $NF;exit}')
+
+        # show explanation how to connect
+        echo -e \
+"From now on you can only login to this zHIVErbox with the ${GREEN}'user'${NC} account
 and pubkey authentication only. Assuming the private key is in the ~/.ssh/
 directory of your workstation, you can connect to this zHIVErbox via:
-    
+
     ${ORANGE}ssh user@`hostname`${NC}
 
 or via its permanent Cjdns address:
-    
+
     ${ORANGE}ssh user@${cjdnsaddr}${NC}
-	
+
 or via its Tor Hidden Onion Service address:
-    
+
     ${ORANGE}torsocks ssh user@${onionaddr}${NC}
-	
+
 or via it's current (temporary?) IPv4 address:
 
     ${ORANGE}ssh user@${ipv4addr}${NC}
 
 "
-		display_alert "You should test these commands in a parallel terminal now..." "" "todo"
-		echo -e "${MAGENTA}Hint: SHIFT+CTRL+T usually opens a new terminal tab (on Ubuntu)${NC}"
-		echo ""
-		press_any_key
-	fi
+        display_alert "You should test these commands in a parallel terminal now..." "" "todo"
+        echo -e "${MAGENTA}Hint: SHIFT+CTRL+T usually opens a new terminal tab (on Ubuntu)${NC}"
+        echo ""
+        press_any_key
+    fi
 }
 
 replace_default_ssh_boot_key()
 {
-	display_alert "Replace default SSH key for zHIVErbox boot system" "" ""
-	echo -e \
+    display_alert "Replace default SSH key for zHIVErbox boot system" "" ""
+    echo -e \
 "We now replace the default SSH key of the zHIVErbox ${RED}boot system${NC}, so you
-you can use just one single SSH key to connect to both - the 'boot system' and 
+you can use just one single SSH key to connect to both - the 'boot system' and
 the 'root system'.
 "
-	press_any_key
-	
-	local dropbeardir=/etc/dropbear-initramfs
-	
-	# check if the public key is rsa, dsa or ecdsa
-	if ! grep -qE '^([^#]+ )?(ssh-(dss|rsa)|ecdsa-sha2-nistp(256|384|521)) ' "$SSH_USER_KEY"; then
-		display_alert "The public key's signature algorithm is not supported by dropbear/initramfs." "$SSH_USER_KEY" "err"
-		echo -e \
+    press_any_key
+
+    local dropbeardir=/etc/dropbear-initramfs
+
+    # check if the public key is rsa, dsa or ecdsa
+    if ! grep -qE '^([^#]+ )?(ssh-(dss|rsa)|ecdsa-sha2-nistp(256|384|521)) ' "$SSH_USER_KEY"; then
+        display_alert "The public key's signature algorithm is not supported by dropbear/initramfs." "$SSH_USER_KEY" "err"
+        echo -e \
 "You have to manually change the boot system's SSH authentication key:
-    1. Copy a public key with a supported signature alogrithm (RSA, DSA or 
-       ECDSA) into a file called ${ORANGE}$dropbeardir/authorized_keys${NC} 
+    1. Copy a public key with a supported signature alogrithm (RSA, DSA or
+       ECDSA) into a file called ${ORANGE}$dropbeardir/authorized_keys${NC}
     2. Delete existing 'id_ecdsa' and 'id_ecdsa.pub' keys in that folder
     3. Manually run ${ORANGE}sudo update-initramfs -uv${NC} to update the
        boot system (initramfs)
 "
-	else
-		display_alert "Remove default public and private key" "rm $dropbeardir/id_ecdsa*"
-		rm $dropbeardir/id_ecdsa*
-		display_alert "Copy individual public key" "cp $SSH_USER_KEY $dropbeardir"
-		cp $SSH_USER_KEY $dropbeardir
-	
-		# update initramfs
-		display_alert "Update boot system (initramfs) to contain new SSH key" "update-initramfs -uv" ""
-		press_any_key
-		update-initramfs -uv
-		echo ""
-		display_alert "Boot system now contains the same SSH public key as the root system." "" "ext"
-	
-		local dropbearopts=$(grep DROPBEAR_OPTIONS $dropbeardir/config | sed 's/DROPBEAR_OPTIONS=//; s/"//g')
-		press_any_key
-				# TODO: fix me
-				echo -e \
-"From now on you can login to this zHIVErbox's ${RED}boot system${NC} via it's 
+    else
+        display_alert "Remove default public and private key" "rm $dropbeardir/id_ecdsa*"
+        rm $dropbeardir/id_ecdsa*
+        display_alert "Copy individual public key" "cp $SSH_USER_KEY $dropbeardir"
+        cp $SSH_USER_KEY $dropbeardir
+
+        # update initramfs
+        display_alert "Update boot system (initramfs) to contain new SSH key" "update-initramfs -uv" ""
+        press_any_key
+        update-initramfs -uv
+        echo ""
+        display_alert "Boot system now contains the same SSH public key as the root system." "" "ext"
+
+        local dropbearopts=$(grep DROPBEAR_OPTIONS $dropbeardir/config | sed 's/DROPBEAR_OPTIONS=//; s/"//g')
+        press_any_key
+                # TODO: fix me
+                echo -e \
+"From now on you can login to this zHIVErbox's ${RED}boot system${NC} via it's
 current (temporary?) IPv4 address:
-	${ORANGE}ssh $dropbearopts root@${ipv4addr}${NC}
+    ${ORANGE}ssh $dropbearopts root@${ipv4addr}${NC}
 
 Cjdns or Tor access are ${BOLD}not available${NC} on the 'limited' boot system."
-	fi
+    fi
 }
 
 # main script
