@@ -1,15 +1,15 @@
 #!/bin/bash
 
-# The zHIVErbox installation scripts may be used according to the 
+# The zHIVErbox installation scripts may be used according to the
 # MIT License EXCEPT for the following conditions:
-#   * Running ANY software that forks the 
+#   * Running ANY software that forks the
 #     Bitcoin consensus (https://bitcoin.org)
 #   * If you want to run software like Bcash (Bitcoin Cash),
 #     feel free to write your own installation scripts from scratch,
-#     but you are not granted permission to use, copy, modify or 
+#     but you are not granted permission to use, copy, modify or
 #     benefit-from the work of the zHIVErbox authors and contributors.
-# We know this sounds arbitrarly and allows for heated discussions, 
-# but these are simply our terms. We provide our work for free, so 
+# We know this sounds arbitrarly and allows for heated discussions,
+# but these are simply our terms. We provide our work for free, so
 # either accept it or try to create your own stuff.
 
 export SRC_HOME="/tmp/cache/opt/src"
@@ -17,30 +17,30 @@ mkdir -p $SRC_HOME
 
 display_alert()
 {
-	local tmp=""
-	[[ -n $2 ]] && tmp="[\e[0;33m $2 \x1B[0m]"
+    local tmp=""
+    [[ -n $2 ]] && tmp="[\e[0;33m $2 \x1B[0m]"
 
-	case $3 in
-		err)
-		echo -e "[\e[0;31m error \x1B[0m] $1 $tmp"
-		;;
+    case $3 in
+        err)
+        echo -e "[\e[0;31m error \x1B[0m] $1 $tmp"
+        ;;
 
-		wrn)
-		echo -e "[\e[0;35m warn \x1B[0m] $1 $tmp"
-		;;
+        wrn)
+        echo -e "[\e[0;35m warn \x1B[0m] $1 $tmp"
+        ;;
 
-		ext)
-		echo -e "[\e[0;32m o.k. \x1B[0m] \e[1;32m$1\x1B[0m $tmp"
-		;;
+        ext)
+        echo -e "[\e[0;32m o.k. \x1B[0m] \e[1;32m$1\x1B[0m $tmp"
+        ;;
 
-		info)
-		echo -e "[\e[0;32m o.k. \x1B[0m] $1 $tmp"
-		;;
+        info)
+        echo -e "[\e[0;32m o.k. \x1B[0m] $1 $tmp"
+        ;;
 
-		*)
-		echo -e "[\e[0;32m .... \x1B[0m] $1 $tmp"
-		;;
-	esac
+        *)
+        echo -e "[\e[0;32m .... \x1B[0m] $1 $tmp"
+        ;;
+    esac
 }
 
 install_tor()
@@ -48,13 +48,13 @@ install_tor()
     echo ""
     display_alert "Install Tor packages" "apt-get -y -q install -t stretch-backports tor torsocks tor-arm apt-transport-tor" ""
     apt-get -y --show-progress -o DPKG::Progress-Fancy=1 install -t stretch-backports tor torsocks tor-arm apt-transport-tor
-    
+
     # While apt sends no directly identifying information to mirrors the download of
     # metadata like the translation files as well as individual package names can
     # potentially reveal information about a user an adversary could observe.
     #
     # Therefore, zHIVErbox uses the Debian onion service
-    # Debian Project: [Complete List](https://onion.debian.org) 
+    # Debian Project: [Complete List](https://onion.debian.org)
     # [Announcement](https://bits.debian.org/2016/08/debian-and-tor-services-available-as-onion-services.html)
     display_alert "Onionfy Debian apt sources" "/etc/apt/sources.list" ""
     sed -i 's/http:\/\//tor+http:\/\//' /etc/apt/sources.list
@@ -62,13 +62,13 @@ install_tor()
     sed -i 's/security.debian.org/sgvtcaew4bxjd7ln.onion/' /etc/apt/sources.list
     cat /etc/apt/sources.list
     echo ""
-    
+
     # no onion service available yet for armbian packages, tor+http must be sufficient for now :(
     display_alert "Torify other apt sources" "/etc/apt/sources.list.d/armbian.list" ""
     sed -i 's/http:\/\//tor+http:\/\//' /etc/apt/sources.list.d/armbian.list
     cat /etc/apt/sources.list.d/armbian.list
     echo ""
-    
+
     # avoid mistakenly adding new sources without using tor
     display_alert "Disable http(s) without Tor for apt" "/etc/apt/apt.conf" ""
     cat << 'EOF' >> /etc/apt/apt.conf
@@ -77,19 +77,19 @@ Dir::Bin::Methods::https "false";
 EOF
     cat /etc/apt/apt.conf
     echo ""
-    
+
     # add tor projects repository containing latest Tor releases
     # not needed as long as Debian backports are timely
-#    echo \ 
+#    echo \
 #"deb tor+http://deb.torproject.org/torproject.org stretch main
 #deb-src tor+http://deb.torproject.org/torproject.org stretch main
 #" > /etc/apt/sources.list.d/torproject.list
-    
+
     # refresh apt
     display_alert "Refresh apt repository" "apt-get update" ""
     apt-get update
     echo ""
-    
+
     # upgrade to latest tor release
     #display_alert "Update Tor packages" "apt-get -y -q install -t stretch-backports tor torsocks tor-arm apt-transport-tor" ""
     #apt-get -y --show-progress -o DPKG::Progress-Fancy=1 install tor torsocks tor-arm apt-transport-tor
@@ -97,47 +97,47 @@ EOF
 
 install_tor_grater()
 {
-	echo ""
+    echo ""
     display_alert "Installing Tor control port filter from Whonix repository..." "" ""
-	# install Debian keyring
-	display_alert "Installing Debian keyring..." "apt-get -y install debian-keyring" ""
-	apt-get -y --show-progress -o DPKG::Progress-Fancy=1 install debian-keyring
-	
-	# import Whonix's signing key
-	export GNUPGHOME=/root/.gnupg
-	display_alert "Import Whonix signing key..." "https://www.whonix.org/patrick.asc" ""
-	torsocks wget https://www.whonix.org/patrick.asc -O - 2>/dev/null | gpg --import
-	display_alert "Check Whonix signing key" "gpg --check-sigs 916B8D99C38EAF5E8ADC7A2A8D66066A2EEACCDA" ""
-	gpg --check-sigs 916B8D99C38EAF5E8ADC7A2A8D66066A2EEACCDA
-	display_alert "Add Whonix signing key to apt" "gpg --export 916B8D99C38EAF5E8ADC7A2A8D66066A2EEACCDA | apt-key add -" ""
-	gpg --export 916B8D99C38EAF5E8ADC7A2A8D66066A2EEACCDA | apt-key add -
-	
-	# add Whonix's APT repository.
-	display_alert "Add Whonix apt repository" "/etc/apt/sources.list.d/whonix.list" ""
-	echo "deb tor+http://deb.whonix.org stretch main" > /etc/apt/sources.list.d/whonix.list
-	
-	# install onion-grater
-	display_alert "Refresh apt repository" "apt-get update" ""
-	apt-get update
-	display_alert "Installing Tor control port filter..." "apt-get -y install onion-grater" ""
-	apt-get -y --show-progress -o DPKG::Progress-Fancy=1 install onion-grater
-	
-	# Make sure Tor control port is enabled
-	display_alert "Enable Tor control port on non-default port 9052" "/etc/tor/torrc" ""
-	sed -i 's/^#ControlPort 9051/ControlPort 9052/' /etc/tor/torrc
-	
-	# installation complete
-	display_alert "Tor control port filter installation complete." "onion-grater" ""
-	echo ""
+    # install Debian keyring
+    display_alert "Installing Debian keyring..." "apt-get -y install debian-keyring" ""
+    apt-get -y --show-progress -o DPKG::Progress-Fancy=1 install debian-keyring
+
+    # import Whonix's signing key
+    export GNUPGHOME=/root/.gnupg
+    display_alert "Import Whonix signing key..." "https://www.whonix.org/patrick.asc" ""
+    torsocks wget https://www.whonix.org/patrick.asc -O - 2>/dev/null | gpg --import
+    display_alert "Check Whonix signing key" "gpg --check-sigs 916B8D99C38EAF5E8ADC7A2A8D66066A2EEACCDA" ""
+    gpg --check-sigs 916B8D99C38EAF5E8ADC7A2A8D66066A2EEACCDA
+    display_alert "Add Whonix signing key to apt" "gpg --export 916B8D99C38EAF5E8ADC7A2A8D66066A2EEACCDA | apt-key add -" ""
+    gpg --export 916B8D99C38EAF5E8ADC7A2A8D66066A2EEACCDA | apt-key add -
+
+    # add Whonix's APT repository.
+    display_alert "Add Whonix apt repository" "/etc/apt/sources.list.d/whonix.list" ""
+    echo "deb tor+http://deb.whonix.org stretch main" > /etc/apt/sources.list.d/whonix.list
+
+    # install onion-grater
+    display_alert "Refresh apt repository" "apt-get update" ""
+    apt-get update
+    display_alert "Installing Tor control port filter..." "apt-get -y install onion-grater" ""
+    apt-get -y --show-progress -o DPKG::Progress-Fancy=1 install onion-grater
+
+    # Make sure Tor control port is enabled
+    display_alert "Enable Tor control port on non-default port 9052" "/etc/tor/torrc" ""
+    sed -i 's/^#ControlPort 9051/ControlPort 9052/' /etc/tor/torrc
+
+    # installation complete
+    display_alert "Tor control port filter installation complete." "onion-grater" ""
+    echo ""
 }
 
 setup_tor_enforcement_dns()
 {
     # see: https://tails.boum.org/contribute/design/Tor_enforcement/
-    
+
     echo ""
     display_alert "Install Tor enforcement for DNS" "https://tails.boum.org/contribute/design/Tor_enforcement/" ""
-    
+
     # configure NetworkManager not to manage resolv.conf at all
     display_alert "Configure NetworkManager not to manage resolv.conf at all" "/etc/NetworkManager/conf.d/dns.conf" ""
     local nmdnsconf=/etc/NetworkManager/conf.d/dns.conf
@@ -150,17 +150,17 @@ setup_tor_enforcement_dns()
     mkdir -p $(dirname $dhcconf)
     echo "make_resolv_conf() { : ; }" > $dhcconf
     chmod 755 $dhcconf
-    
+
     # resolv.conf is configured to point to the Tor DNS resolver
     #display_alert "Point resolv.conf to the local Tor DNS resolver" "/etc/resolv.conf"  ""
     #local resconf=/etc/resolv.conf
     #echo "nameserver 127.0.0.1" > $resconf
-    
+
     # /etc/resolvconf/resolv.conf.d/head is configured to point to the Tor DNS resolver
     display_alert "Point /etc/resolvconf/resolv.conf.d/head to the local Tor DNS resolver" "/etc/resolvconf/resolv.conf.d/head"  ""
     local resconfhead=/etc/resolvconf/resolv.conf.d/head
     echo "nameserver 127.0.0.1" > $resconfhead
-    
+
     # enable DNS, transparent proxy and misc setting
     display_alert "Enable Tor DNS, transparent proxy and misc settings" "/etc/tor/torrc" ""
     cat << 'EOF' >> /etc/tor/torrc
@@ -193,7 +193,7 @@ AvoidDiskWrites 1
 Log notice file /var/log/tor/log
 
 EOF
-	#cat /etc/tor/torrc
+    #cat /etc/tor/torrc
     echo ""
 }
 
@@ -202,88 +202,88 @@ setup_tor_enforcement_ferm()
     echo ""
     display_alert "Install ferm firewall manager" "apt-get -y -q install ferm" ""
     apt-get -y --show-progress -o DPKG::Progress-Fancy=1 install ferm
-    
+
     local fermconf=/etc/ferm/ferm.conf
     display_alert "Copy zHIVErbox firewall rules" "$fermconf" ""
     mkdir -p $(dirname $fermconf)
     cp /tmp/overlay$fermconf $fermconf
     mkdir -p /etc/ferm/ferm.d
-    
+
     # Workaround for broken Path MTU Discovery
-	# see https://tails.boum.org/contribute/design/#index32h3
-	local pmtudconf="/etc/sysctl.d/pmtud.conf"
-	display_alert "Workaround: Enable Packetization Layer Path MTU Discovery" "$pmtudconf" ""
-	cp /tmp/overlay$pmtudconf /etc/sysctl.d/
-    
+    # see https://tails.boum.org/contribute/design/#index32h3
+    local pmtudconf="/etc/sysctl.d/pmtud.conf"
+    display_alert "Workaround: Enable Packetization Layer Path MTU Discovery" "$pmtudconf" ""
+    cp /tmp/overlay$pmtudconf /etc/sysctl.d/
+
     echo ""
 }
 
 setup_time_sync()
 {
-	# see https://tails.boum.org/contribute/design/Time_syncing/
+    # see https://tails.boum.org/contribute/design/Time_syncing/
     echo ""
-	display_alert "Install Tails based time syncing" "https://tails.boum.org/contribute/design/Time_syncing/" ""
-	
-	local torshell="/usr/local/lib/tor.sh"
-	install -o root -g root -m 0744 /tmp/overlay$torshell $torshell
-	
-	# install NetworkManager dispatcher
-	local nmdisp="/etc/NetworkManager/dispatcher.d/20-time.sh"
-	install -o root -g root -m 0744 /tmp/overlay$nmdisp $nmdisp
-	
-	# use same user agent as TorBrowser and Tails for htpdate
-	CONFFILE='/etc/default/htpdate.user-agent'
-	install -o root -g root -m 0644 /dev/null "$CONFFILE"
-	echo "HTTP_USER_AGENT=\"Mozilla/5.0 (Windows NT 6.1; rv:52.0) Gecko/20100101 Firefox/52.0\"" \
+    display_alert "Install Tails based time syncing" "https://tails.boum.org/contribute/design/Time_syncing/" ""
+
+    local torshell="/usr/local/lib/tor.sh"
+    install -o root -g root -m 0744 /tmp/overlay$torshell $torshell
+
+    # install NetworkManager dispatcher
+    local nmdisp="/etc/NetworkManager/dispatcher.d/20-time.sh"
+    install -o root -g root -m 0744 /tmp/overlay$nmdisp $nmdisp
+
+    # use same user agent as TorBrowser and Tails for htpdate
+    CONFFILE='/etc/default/htpdate.user-agent'
+    install -o root -g root -m 0644 /dev/null "$CONFFILE"
+    echo "HTTP_USER_AGENT=\"Mozilla/5.0 (Windows NT 6.1; rv:52.0) Gecko/20100101 Firefox/52.0\"" \
      > "$CONFFILE"
 
-	# install htpdate service and config
-	apt-get -y --show-progress -o DPKG::Progress-Fancy=1 install \
-		libdatetime-perl \
-		libdatetime-format-dateparse-perl \
-		libgetopt-long-descriptive-perl \
-		libipc-system-simple-perl
-	local htpdatepoolsconf="/etc/default/htpdate.pools"
-	install -o root -g root -m 0644 /tmp/overlay$htpdatepoolsconf $htpdatepoolsconf
-	local htpdatebin="/usr/local/sbin/htpdate"
-	install -o root -g root -m 0744 /tmp/overlay$htpdatebin $htpdatebin
-	local htpdatedservice="/etc/systemd/system/htpdate.service"
-	install -o root -g root -m 0644 /tmp/overlay$htpdatedservice $htpdatedservice
-	
-	# create htp user (see service file)
-	local htp_user="htp"
-	local nogroup_id=$(grep -i "^nogroup:" /etc/group | cut -d: -f3)
-	adduser --quiet \
-		    --system \
-		    --disabled-password \
-		    --home /run/htpdate \
-		    --no-create-home \
-		    --shell /bin/false \
-		    --gid $nogroup_id \
-		    $htp_user
-	
-	# disable ntpd since we use htpdate instead
-	display_alert "Disable ntpd..." "systemctl disable ntpd.service" ""
-	systemctl disable ntp.service
-	
-	echo ""
+    # install htpdate service and config
+    apt-get -y --show-progress -o DPKG::Progress-Fancy=1 install \
+        libdatetime-perl \
+        libdatetime-format-dateparse-perl \
+        libgetopt-long-descriptive-perl \
+        libipc-system-simple-perl
+    local htpdatepoolsconf="/etc/default/htpdate.pools"
+    install -o root -g root -m 0644 /tmp/overlay$htpdatepoolsconf $htpdatepoolsconf
+    local htpdatebin="/usr/local/sbin/htpdate"
+    install -o root -g root -m 0744 /tmp/overlay$htpdatebin $htpdatebin
+    local htpdatedservice="/etc/systemd/system/htpdate.service"
+    install -o root -g root -m 0644 /tmp/overlay$htpdatedservice $htpdatedservice
+
+    # create htp user (see service file)
+    local htp_user="htp"
+    local nogroup_id=$(grep -i "^nogroup:" /etc/group | cut -d: -f3)
+    adduser --quiet \
+            --system \
+            --disabled-password \
+            --home /run/htpdate \
+            --no-create-home \
+            --shell /bin/false \
+            --gid $nogroup_id \
+            $htp_user
+
+    # disable ntpd since we use htpdate instead
+    display_alert "Disable ntpd..." "systemctl disable ntpd.service" ""
+    systemctl disable ntp.service
+
+    echo ""
 }
 
 torify_wget()
 {
-	# see https://git-tails.immerda.ch/tails/plain/config/chroot_local-hooks/70-wget
-	# see https://tor.stackexchange.com/questions/12544/how-can-wget-be-configured-to-work-with-torify-securely
-	
-	display_alert "Torifying wget..." "dpkg-divert --add --rename --divert /usr/lib/wget/wget /usr/bin/wget"
+    # see https://git-tails.immerda.ch/tails/plain/config/chroot_local-hooks/70-wget
+    # see https://tor.stackexchange.com/questions/12544/how-can-wget-be-configured-to-work-with-torify-securely
 
-	# We don't want the real binary to be in $PATH:
-	# Also note that wget uses the executable name in some help/error messages,
-	# so wget-real/etc. should be avoided.
-	mkdir -p /usr/lib/wget
-	dpkg-divert --add --rename --divert /usr/lib/wget/wget /usr/bin/wget
+    display_alert "Torifying wget..." "dpkg-divert --add --rename --divert /usr/lib/wget/wget /usr/bin/wget"
 
-	# We don't want users or other applications using wget directly:
-	cat > /usr/bin/wget << 'EOF'
+    # We don't want the real binary to be in $PATH:
+    # Also note that wget uses the executable name in some help/error messages,
+    # so wget-real/etc. should be avoided.
+    mkdir -p /usr/lib/wget
+    dpkg-divert --add --rename --divert /usr/lib/wget/wget /usr/bin/wget
+
+    # We don't want users or other applications using wget directly:
+    cat > /usr/bin/wget << 'EOF'
 #!/bin/sh
 unset http_proxy
 unset HTTP_PROXY
@@ -363,39 +363,39 @@ clone_or_update_from_github()
     local origin=$2
     display_alert "Downloading $name sources from GitHub" "$origin" ""
     echo ""
-    
+
     # use TOR to download from GitHub
     #GIT_CMD="torify git"
     GIT_CMD="torsocks git"
-    
+
     # if source directory doesn't exist yet we have to clone from github first
     if [[ ! -d "$target_path/.git/" ]]; then
         display_alert "Clone $name" "$GIT_CMD clone ${origin}.git $target_path" ""
         echo ""
         $GIT_CMD clone ${origin}.git $target_path
     fi
-    
+
     local workdir=$(pwd)
     cd $target_path
     display_alert "Target directory:" "$target_path" ""
-    
+
     # fetch origin for updates
     display_alert "Fetch $name repository updates" "$GIT_CMD fetch" ""
     $GIT_CMD fetch
-    
+
     # local checkout to latest stable version
     latesttag=$(git describe --abbrev=0 --tags)
     display_alert "Switch $name to latest release" "git checkout ${latesttag}" ""
-    
+
     # no torify required for checkout
     git checkout ${latesttag} && export ${name^^}_CHECKOUT_COMPLETE=true
 
     # TODO: verify sources have not been compromized (man-in-the-middle attack)
     #git verify-tag --raw $(git describe)
-    
+
     # back to working directory
     cd $workdir
-    
+
     echo ""
     display_alert "Download $name from GitHub complete!" "$origin" "ext"
 }
@@ -404,40 +404,40 @@ install_cjdns()
 {
     # TODO: find out why this sometimes hangs at some point and never finishes
     build_cjdns_from_sources
-    
+
     # install from built sources
     install_cjdns_service /opt/src/cjdns
-    
+
     # install from pre-compiled sources if above steps hang on your build system
     #install_cjdns_service /tmp/overlay/build/precompiled/cjdns-v20.1-armhf
 }
 
 build_cjdns_from_sources()
-{   
+{
     apt-get -y -q install build-essential python2.7 git
     apt-get -y -q install nodejs
-    #apt-get -y -q install libuv0.10 libuv0.10-dev 
+    #apt-get -y -q install libuv0.10 libuv0.10-dev
     #apt-get -y -q install libuv1 libuv1-dev
- 
+
     while [ ! $CJDNS_CHECKOUT_COMPLETE  ]
     do
         clone_or_update_from_github "cjdns" "https://github.com/cjdelisle/cjdns"
     done
-    
+
     local workdir=$(pwd)
     # install cjdns according to https://github.com/cjdelisle/cjdns
     cd $SRC_HOME/cjdns
     display_alert "Building cjdns:" "NO_TEST=1 torsocks ./do" ""
     NO_TEST=1 torsocks ./do
     #NO_TEST=1 ./do
-    
+
     # copy everything to persistent location
     mkdir -p /opt/src 2>/dev/null
     cp -r $SRC_HOME/cjdns /opt/src/
-    
+
     # back to working directory
     cd $workdir
-    
+
     display_alert "cjdns built from sources" "COMPLETE" "info"
 }
 
@@ -446,26 +446,26 @@ install_cjdns_service()
     display_alert "Install cjdns as system service" "BEGIN" ""
     install -o root -g root -m 0755 $1/cjdroute /usr/bin/cjdroute
     display_alert "Copied:" "/usr/bin/cjdroute" "info"
-    
+
     # copy service files
     install -o root -g root -m 0644 $1/contrib/systemd/cjdns.service /etc/systemd/system/
     display_alert "Copied:" "/etc/systemd/system/cjdns.service" "info"
-    
+
     install -o root -g root -m 0644 $1/contrib/systemd/cjdns-resume.service /etc/systemd/system/
     display_alert "Copied:" "/etc/systemd/system/cjdns-resume.service" "info"
 
-	# copy zHIVErbox cjdns-dynamic.service file
-	local cjdnsdynservice="/etc/systemd/system/cjdns-dynamic.service"
-	install -o root -g root -m 0644 /tmp/overlay$cjdnsdynservice $cjdnsdynservice
-	display_alert "Copied:" "$cjdnsdynservice" "info"
-	
-	# copy cjdns-dynamic.conf example file
-	local cjdnsdynconf="/etc/cjdns-dynamic.conf"
-	install -o root -g root -m 0644 $1/contrib/python/cjdns-dynamic.conf $cjdnsdynconf
-	display_alert "Copied:" "$cjdnsdynconf" "info"
-	
-	# add kadnode example dummy
-	cat << 'EOF' >> /etc/cjdns-dynamic.conf
+    # copy zHIVErbox cjdns-dynamic.service file
+    local cjdnsdynservice="/etc/systemd/system/cjdns-dynamic.service"
+    install -o root -g root -m 0644 /tmp/overlay$cjdnsdynservice $cjdnsdynservice
+    display_alert "Copied:" "$cjdnsdynservice" "info"
+
+    # copy cjdns-dynamic.conf example file
+    local cjdnsdynconf="/etc/cjdns-dynamic.conf"
+    install -o root -g root -m 0644 $1/contrib/python/cjdns-dynamic.conf $cjdnsdynconf
+    display_alert "Copied:" "$cjdnsdynconf" "info"
+
+    # add kadnode example dummy
+    cat << 'EOF' >> /etc/cjdns-dynamic.conf
 # Example for KadNode .p2p names as hostname
 #[1fhhjzug91xvbsmksjnlx9cq6n8tzcs6d7fsbdv8j70cktg9nnv0.k]
 #hostname: 456a94v74k8e9pfnuhueq3p926u7a3q8dukvck4qaj1p69pvqa9g.p2p
@@ -473,8 +473,8 @@ install_cjdns_service()
 #password: zyplv05r98mr96wm0ry19tq7u29cql2
 
 EOF
-	
-	# create default .cjdnsadmin file for root (needed by cjdns-dynamic.service)
+
+    # create default .cjdnsadmin file for root (needed by cjdns-dynamic.service)
     cat << 'EOF' > /root/.cjdnsadmin
 {
     "addr": "127.0.0.1",
@@ -483,75 +483,75 @@ EOF
 }
 EOF
 
-	display_alert "Install cjdns as system service" "COMPLETE" "info"
+    display_alert "Install cjdns as system service" "COMPLETE" "info"
     echo ""
-    
+
     # enable system services
     systemctl enable cjdns
     systemctl enable cjdns-resume
     systemctl enable cjdns-dynamic
-    
+
     echo ""
 }
 
 build_install_kadnode_from_sources()
 {
-	echo ""
-	display_alert "Building KadNode package from Github sources" "https://github.com/mwarning/KadNode" "info"
-	while [ ! $KADNODE_CHECKOUT_COMPLETE  ]
+    echo ""
+    display_alert "Building KadNode package from Github sources" "https://github.com/mwarning/KadNode" "info"
+    while [ ! $KADNODE_CHECKOUT_COMPLETE  ]
     do
         clone_or_update_from_github "KadNode" "https://github.com/mwarning/KadNode"
     done
-    
+
     local workdir=$(pwd)
     # install kadnode according to https://github.com/mwarning/KadNode/blob/master/debian/README.md
     apt-get -y -q install \
-    				build-essential debhelper devscripts \
-    				libmbedtls-dev libnatpmp-dev libminiupnpc-dev \
-    				libmbedtls10 fakeroot
+                    build-essential debhelper devscripts \
+                    libmbedtls-dev libnatpmp-dev libminiupnpc-dev \
+                    libmbedtls10 fakeroot
     cd $SRC_HOME/KadNode
-    
+
     # create an unsigned package
     dpkg-buildpackage -b -rfakeroot -us -uc
-    
+
     display_alert "KadNode build from sources complete" "" "info"
     echo ""
-    
+
     # install the package
     display_alert "Installing KadNode package" "dpkg -i ../kadnode_*_armhf.deb" "info"
     dpkg -i ../kadnode_*_armhf.deb
     echo ""
-    
+
     # disable kadnode service (user will be asked to enabled it on first login)
     display_alert "Disabling KadNode service by default" "systemctl disable kadnode" "info"
     systemctl disable kadnode
     systemctl stop kadnode
-    
+
     # create a system user for kadnode
     KADNODE_USER=kadnode
-	KADNODE_HOME=/run/kadnode
-	KADNODE_CONFIG=/etc/kadnode/kadnode.conf
-	display_alert "Creating system user 'kadnode' ..." "/etc/passwd" ""
+    KADNODE_HOME=/run/kadnode
+    KADNODE_CONFIG=/etc/kadnode/kadnode.conf
+    display_alert "Creating system user 'kadnode' ..." "/etc/passwd" ""
     if [[ -z $(getent passwd $KADNODE_USER >/dev/null) ]]; then
         adduser --quiet \
-		    --system \
-		    --disabled-password \
-		    --home $KADNODE_HOME \
-		    --no-create-home \
-		    --shell /bin/false \
-		    --group \
-		    $KADNODE_USER
-	fi
-	
-	# add or modify --user argument in kadnode config
-	if grep -q '^--user' $KADNODE_CONFIG; then
-		sed -i "s/^--user .*$/--user $KADNODE_USER/" $KADNODE_CONFIG
-	else
-		echo "--user $KADNODE_USER" >> $KADNODE_CONFIG
-	fi
-	
-	# make /etc/kadnode/peers.txt writeable for system user kadnode
-	chown kadnode:kadnode /etc/kadnode/peers.txt 
+            --system \
+            --disabled-password \
+            --home $KADNODE_HOME \
+            --no-create-home \
+            --shell /bin/false \
+            --group \
+            $KADNODE_USER
+    fi
+
+    # add or modify --user argument in kadnode config
+    if grep -q '^--user' $KADNODE_CONFIG; then
+        sed -i "s/^--user .*$/--user $KADNODE_USER/" $KADNODE_CONFIG
+    else
+        echo "--user $KADNODE_USER" >> $KADNODE_CONFIG
+    fi
+
+    # make /etc/kadnode/peers.txt writeable for system user kadnode
+    chown kadnode:kadnode /etc/kadnode/peers.txt
 }
 
 make_initramfs_motd()
@@ -562,7 +562,7 @@ make_initramfs_motd()
     zhiverbox_art_main="toilet -f standard -W -F metal zHIVErbox"
     $zhiverbox_art_main > $initrmfs_motd
 
-    # remove last two lines of zHIVErbox logo 
+    # remove last two lines of zHIVErbox logo
     # seems like dropbear motd has a limit and can't handle so much
     sed -i '$d' $initrmfs_motd #remove last line
     sed -i '$d' $initrmfs_motd #remove last line
@@ -570,7 +570,7 @@ make_initramfs_motd()
     # add security disclaimer
     echo -e "\e[1;31m" >> $initrmfs_motd # make red
     toilet -f wideterm -F border " BOOT SYSTEM  -  UNLOCK CRYPTROOT " >> $initrmfs_motd
-    echo -e "\e[0;41mREMEMBER:\e[0m Current \e[1mzHIVErbox\e[0m hardware \e[4mlacks SECURE BOOT\e[0m ability! 
+    echo -e "\e[0;41mREMEMBER:\e[0m Current \e[1mzHIVErbox\e[0m hardware \e[4mlacks SECURE BOOT\e[0m ability!
 \e[2mLeft your zHIVErbox unwatched for some time? Verify boot system
 externally (via your computer) before typing your passphrase here!\e[0m" >> $initrmfs_motd
     echo -e "\e[0m" >> $initrmfs_motd # reset color
@@ -581,40 +581,40 @@ debug_make_initramfs_motd()
     echo "" && display_alert "Create initramfs motd" "/etc/initramfs-tools/etc/motd" ""
 
     make_initramfs_motd
-    
+
     cat /etc/initramfs-tools/etc/motd
 }
 
 copy_initramfs_etc_profile()
 {
-	local etcprofile="/etc/initramfs-tools/etc/profile"
-	install -o root -g root -m 0644 -D /tmp/overlay/build$etcprofile $etcprofile
+    local etcprofile="/etc/initramfs-tools/etc/profile"
+    install -o root -g root -m 0644 -D /tmp/overlay/build$etcprofile $etcprofile
 }
 
 copy_initramfs_tools()
 {
-	local hooksdir="/etc/initramfs-tools/hooks"
-	install -o root -g root -m 0755 /tmp/overlay/build/$hooksdir/zhiverbox $hooksdir/
-	#local INITTOPDIR="/etc/initramfs-tools/scripts/init-top"
-	#install -o root -g root -m 0755 /tmp/overlay$INITTOPDIR/hostname $INITTOPDIR/
+    local hooksdir="/etc/initramfs-tools/hooks"
+    install -o root -g root -m 0755 /tmp/overlay/build/$hooksdir/zhiverbox $hooksdir/
+    #local INITTOPDIR="/etc/initramfs-tools/scripts/init-top"
+    #install -o root -g root -m 0755 /tmp/overlay$INITTOPDIR/hostname $INITTOPDIR/
 }
 
 install_zhiverbox_scripts()
 {
     apt-get -y -q install dc
-    
+
     mkdir -p /opt/zhiverbox
     cp -r /tmp/overlay/opt/zhiverbox /opt/
 }
 
 install_post_user_setup_customization()
 {
-	
+
     local script=/opt/zhiverbox/scripts/etc/profile.d/z_10_post_user_setup_customization.sh
     echo "" && display_alert "Install post-user-setup script" "$script" ""
     ln -s $script /etc/profile.d/
     chmod +x $script
-    
+
     # activate execution of script on first login
     mkdir /etc/zhiverbox 2>/dev/null
     touch /etc/zhiverbox/.post_user_setup
@@ -687,17 +687,17 @@ motd_add_31_dnets()
     local motdfile="/etc/update-motd.d/31-zhiverbox-dnets"
     echo "" && display_alert "Adding motd dnets" "$motdfile" ""
     # setup requirements
-    
+
     # tor info requirements
     local tor_info_script=/opt/zhiverbox/scripts/cron/check_tor_info.sh
     chmod +x $tor_info_script
     cp /opt/zhiverbox/scripts/etc/systemd/system/tor-motd-info.* /etc/systemd/system/
     systemctl daemon-reload
     systemctl enable tor-motd-info.path
-    
+
     # cjdns info requirements
     apt-get -y -q install jq
-    
+
     # hyperboria info requirements
     local hyperboria_info_script=/opt/zhiverbox/scripts/cron/check_hyperboria_connection.sh
     chmod +x $hyperboria_info_script
@@ -708,7 +708,7 @@ motd_add_31_dnets()
     local script=/opt/zhiverbox/scripts/$motdfile
     ln -s $script /etc/update-motd.d/
     chmod +x $script
-    
+
     cat $motdfile
 }
 
@@ -726,7 +726,7 @@ motd_add_36_donations()
     local script=/opt/zhiverbox/scripts/$motdfile
     ln -s $script /etc/update-motd.d/
     chmod +x $script
-    
+
     cat $motdfile
 }
 
@@ -734,7 +734,7 @@ motd_add_36_donations()
 # https://wiki.odroid.com/odroid-xu4/troubleshooting/shutdown_script
 safe_hard_disk_parking_on_shutdown()
 {
-	echo "" && display_alert "Installing safe hard disk parking fix" "https://wiki.odroid.com/odroid-xu4/troubleshooting/shutdown_script" ""
-	apt-get -y -q install hdparm mdadm
-	sudo install -o root -g root -m 0755 /tmp/overlay/lib/systemd/system-shutdown/odroid.shutdown /lib/systemd/system-shutdown/odroid.shutdown
+    echo "" && display_alert "Installing safe hard disk parking fix" "https://wiki.odroid.com/odroid-xu4/troubleshooting/shutdown_script" ""
+    apt-get -y -q install hdparm mdadm
+    sudo install -o root -g root -m 0755 /tmp/overlay/lib/systemd/system-shutdown/odroid.shutdown /lib/systemd/system-shutdown/odroid.shutdown
 }
