@@ -57,9 +57,10 @@ enable_ssh_pubkey_for_user()
 	display_alert "Enabling SSH pubkey authentication for 'user' account..." "$authkeysfile" ""
 	
 	if [ -f $SSH_USER_KEY ]; then
-		sudo -u user mkdir /home/user/.ssh 2>/dev/null
-		echo "# public key provided by zHIVErbox installer" >> $authkeysfile
-		cat $SSH_USER_KEY | sudo -u user tee $authkeysfile
+		sudo -u user mkdir -m 700 /home/user/.ssh 2>/dev/null
+		sudo -u user install -m 600 /dev/null $authkeysfile
+		echo "# public key provided by zHIVErbox installer" > $authkeysfile
+		cat $SSH_USER_KEY >> $authkeysfile
 		display_alert "Enabled SSH public key authentication for account:" "user" "ext"
 		display_alert "Disabling SSH password authentication for all accounts..." "/etc/ssh/sshd_config" ""
 		sed -i 's/^.*PasswordAuthentication\s.*$/PasswordAuthentication no/' /etc/ssh/sshd_config
