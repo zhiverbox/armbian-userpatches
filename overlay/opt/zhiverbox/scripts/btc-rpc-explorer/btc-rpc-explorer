@@ -1,0 +1,26 @@
+#!/bin/bash
+
+SRC_HOME=/mnt/data/btc-rpc-explorer
+HTTP_PORT=3002
+NETWORK=${1:-mainnet}
+
+echo "Starting BTC RPC Explorer for '$NETWORK'";
+case $NETWORK in
+    mainnet)
+        bitcoind_config=/etc/bitcoin/bitcoin.conf;
+        bitcoind_default_rpcport=8332;;
+    testnet)
+        bitcoind_config=/etc/bitcoin/test_bitcoin.conf;
+        bitcoind_default_rpcport=18332;;
+    *) echo "Unsupported network '$NETWORK'. Please use 'mainnet' or 'testnet'" && exit 1;;
+esac
+
+cookiefile=$(cat $bitcoind_config | grep 'rpccookiefile=' | awk -F'=' '{print $2}')/authcookie
+if [[ ! -f $cookiefile ]]; then
+    echo "Cookie Authentication file not found. Is $NETWORK bitcoind running?" && exit 1
+fi
+
+# start
+echo "Access via your web browser: http://localhost:$HTTP_PORT"
+cd $SRC_HOME
+RPC_HOST="localhost" RPC_PORT="$bitcoind_default_rpcport" RPC_COOKIEFILE="$cookiefile" yarn start 1>run.log

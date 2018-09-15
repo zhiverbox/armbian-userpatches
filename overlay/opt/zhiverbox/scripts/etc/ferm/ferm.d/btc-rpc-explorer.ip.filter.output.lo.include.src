@@ -1,0 +1,4 @@
+# btc-rpc-explorer's http port
+daddr 127.0.0.1 proto tcp dport {{HTTP_PORT}} {
+    mod owner uid-owner $user_uid ACCEPT;
+}

@@ -670,6 +670,14 @@ install_bitcoind_setup_assistance()
     chmod +x $script
 }
 
+install_btcrpcexplorer_setup_assistance()
+{
+    local script=/opt/zhiverbox/scripts/etc/profile.d/z_51_check_btc-rpc-explorer.sh
+    echo "" && display_alert "Install BTC RPC Explorer setup assistance script" "$script" ""
+    ln -s $script /etc/profile.d/
+    chmod +x $script
+}
+
 motd_change_10_header()
 {
     local motdfile="/etc/update-motd.d/10-armbian-header"
