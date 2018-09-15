@@ -8,7 +8,8 @@ Wants=time-sync.target
 Type=oneshot
 # Creates /run/htpdate
 RuntimeDirectory=htpdate
-ExecStartPre=-/bin/chown htp /run/htpdate
+# Sets ownership of runtime directory to user 'htp'
+USER=htp
 Environment=DONE_FILE=/run/htpdate/done
 Environment=SUCCESS_FILE=/run/htpdate/success
 Environment=LOG=/var/log/htpdate.log
