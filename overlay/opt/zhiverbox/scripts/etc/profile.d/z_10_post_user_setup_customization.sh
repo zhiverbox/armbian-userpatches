@@ -139,8 +139,8 @@ the 'root system'.
 
         local dropbearopts=$(grep DROPBEAR_OPTIONS $dropbeardir/config | sed 's/DROPBEAR_OPTIONS=//; s/"//g')
         press_any_key
-                # TODO: fix me
-                echo -e \
+        # TODO: fix me
+        echo -e \
 "From now on you can login to this zHIVErbox's ${RED}boot system${NC} via it's
 current (temporary?) IPv4 address:
     ${ORANGE}ssh $dropbearopts root@${ipv4addr}${NC}
