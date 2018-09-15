@@ -293,67 +293,67 @@ unset HTTPS_PROXY
 exec torsocks /usr/lib/wget/wget --passive-ftp "$@"
 EOF
 
-	chmod 755 /usr/bin/wget
-	
+    chmod 755 /usr/bin/wget
+
 }
 
 torify_git()
 {
-	display_alert "Torifying git..." "git config --system http.proxy 'socks5://127.0.0.1:9050'"
-	git config --system http.proxy 'socks5://127.0.0.1:9050'
+    display_alert "Torifying git..." "git config --system http.proxy 'socks5://127.0.0.1:9050'"
+    git config --system http.proxy 'socks5://127.0.0.1:9050'
 }
 
 security_hardening()
 {
-	display_alert "Applying additional zHIVErbox security hardenings..." "" ""
-	
-	# disable TCP time stamps
-	# see https://tails.boum.org/contribute/design/#index51h3
-	local tcptsconf="/etc/sysctl.d/tcp_timestamps.conf"
-	display_alert "Disable TCP time stamps" "$tcptsconf" ""
-	cp /tmp/overlay$tcptsconf /etc/sysctl.d/
-	
-	# disable netfilter's connection tracking helpers
-	# see https://tails.boum.org/contribute/design/#index32h3
-	local conntracconf="/etc/modprobe.d/no-conntrack-helper.conf"
-	display_alert "Disable disable netfilter's connection tracking helpers" "$conntracconf" ""
-	cp /tmp/overlay$conntracconf /etc/modprobe.d/
-	
-	# systemd-networkd fallbacks to Google's nameservers when no other nameserver
-	# is provided by the network configuration. In Stretch, this service is disabled
-	# by default, but it feels safer to make this explicit. Besides, it might be
-	# that systemd-networkd vs. firewall setup ordering is suboptimal in this respect,
-	# so let's avoid any risk of DNS leaks here.
-	display_alert "Masking systemd-networkd" "systemctl mask systemd-networkd.service" ""
-	systemctl mask systemd-networkd.service
+    display_alert "Applying additional zHIVErbox security hardenings..." "" ""
 
-	# Do not run timesyncd: we have our own time synchronization mechanism
-	display_alert "Masking systemd-timesyncd" "systemctl mask systemd-timesyncd.service" ""
-	systemctl mask systemd-timesyncd.service
-	
-	# Do not let pppd-dns manage /etc/resolv.conf
-	display_alert "Masking pppd-dns" "systemctl mask pppd-dns.service" ""
-	systemctl mask pppd-dns.service
-	
-	display_alert "Installing memlockd service" "apt-get -y -q install memlockd" ""
-	apt-get -y --show-progress -o DPKG::Progress-Fancy=1 install memlockd
-	local memlockdconf="/etc/memlockd.cfg"
-	cp /tmp/overlay$memlockdconf /etc/
-	systemctl enable memlockd.service
-	echo ""
-	
-	display_alert "Installing fail2ban service" "apt-get -y -q install fail2ban" ""
-	apt-get -y --show-progress -o DPKG::Progress-Fancy=1 install fail2ban
-	systemctl enable fail2ban.service
+    # disable TCP time stamps
+    # see https://tails.boum.org/contribute/design/#index51h3
+    local tcptsconf="/etc/sysctl.d/tcp_timestamps.conf"
+    display_alert "Disable TCP time stamps" "$tcptsconf" ""
+    cp /tmp/overlay$tcptsconf /etc/sysctl.d/
+
+    # disable netfilter's connection tracking helpers
+    # see https://tails.boum.org/contribute/design/#index32h3
+    local conntracconf="/etc/modprobe.d/no-conntrack-helper.conf"
+    display_alert "Disable disable netfilter's connection tracking helpers" "$conntracconf" ""
+    cp /tmp/overlay$conntracconf /etc/modprobe.d/
+
+    # systemd-networkd fallbacks to Google's nameservers when no other nameserver
+    # is provided by the network configuration. In Stretch, this service is disabled
+    # by default, but it feels safer to make this explicit. Besides, it might be
+    # that systemd-networkd vs. firewall setup ordering is suboptimal in this respect,
+    # so let's avoid any risk of DNS leaks here.
+    display_alert "Masking systemd-networkd" "systemctl mask systemd-networkd.service" ""
+    systemctl mask systemd-networkd.service
+
+    # Do not run timesyncd: we have our own time synchronization mechanism
+    display_alert "Masking systemd-timesyncd" "systemctl mask systemd-timesyncd.service" ""
+    systemctl mask systemd-timesyncd.service
+
+    # Do not let pppd-dns manage /etc/resolv.conf
+    display_alert "Masking pppd-dns" "systemctl mask pppd-dns.service" ""
+    systemctl mask pppd-dns.service
+
+    display_alert "Installing memlockd service" "apt-get -y -q install memlockd" ""
+    apt-get -y --show-progress -o DPKG::Progress-Fancy=1 install memlockd
+    local memlockdconf="/etc/memlockd.cfg"
+    cp /tmp/overlay$memlockdconf /etc/
+    systemctl enable memlockd.service
+    echo ""
+
+    display_alert "Installing fail2ban service" "apt-get -y -q install fail2ban" ""
+    apt-get -y --show-progress -o DPKG::Progress-Fancy=1 install fail2ban
+    systemctl enable fail2ban.service
 }
 
 install_btrfs_snp()
 {
-	echo ""
-	local btrfsnpbin="/usr/local/sbin/btrfs-snp"
-	display_alert "Install btrfs-snp tool..." "$btrfsnpbin" ""
-	install -o root -g root -m 0744 /tmp/overlay$btrfsnpbin $btrfsnpbin
-	echo ""
+    echo ""
+    local btrfsnpbin="/usr/local/sbin/btrfs-snp"
+    display_alert "Install btrfs-snp tool..." "$btrfsnpbin" ""
+    install -o root -g root -m 0744 /tmp/overlay$btrfsnpbin $btrfsnpbin
+    echo ""
 }
 
 clone_or_update_from_github()
@@ -656,7 +656,7 @@ motd_change_10_header()
 {
     local motdfile="/etc/update-motd.d/10-armbian-header"
     echo "" && display_alert "Changing motd header" "$motdfile" ""
-    
+
     local zhiverbox_art_main="toilet -f standard -W -F metal zHIVErbox"
     local zhiverbox_art_sub="toilet -f wideterm -F border ' Unfairly secure. Unfairly cheap. '"
     #local zhiverbox_art="toilet -f standard -W -F metal zHIVErbox && toilet -f wideterm -F border Unfairly secure. ' ' Unfairly cheap."
