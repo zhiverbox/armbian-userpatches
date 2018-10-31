@@ -301,6 +301,9 @@ torify_git()
 {
     display_alert "Torifying git..." "git config --system http.proxy 'socks5://127.0.0.1:9050'"
     git config --system http.proxy 'socks5://127.0.0.1:9050'
+    
+    # git command can (must!) be used WITHOUT torsocks now
+    GIT_CMD="git"
 }
 
 torify_non_socks()
@@ -382,9 +385,9 @@ clone_or_update_from_github()
     display_alert "Downloading $name sources from GitHub" "$origin" ""
     echo ""
 
-    # use TOR to download from GitHub
-    #GIT_CMD="torify git"
-    GIT_CMD="torsocks git"
+    # use TOR to download from GitHub (see torify_git() function)
+    [[ -z $GIT_CMD ]] && GIT_CMD="torsocks git"
+   
 
     # if source directory doesn't exist yet we have to clone from github first
     if [[ ! -d "$target_path/.git/" ]]; then
