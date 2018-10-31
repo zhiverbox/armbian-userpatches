@@ -527,9 +527,11 @@ build_install_kadnode_from_sources()
     local workdir=$(pwd)
     # install kadnode according to https://github.com/mwarning/KadNode/blob/master/debian/README.md
     apt-get -y -q install \
-                    build-essential debhelper devscripts \
+                    build-essential devscripts \
                     libmbedtls-dev libnatpmp-dev libminiupnpc-dev \
                     libmbedtls10 fakeroot
+    # debhelper >= 11 is only available via stretch-backports
+    apt-get -y -q install -t stretch-backports debhelper
     cd $SRC_HOME/KadNode
 
     # create an unsigned package
