@@ -160,6 +160,11 @@ setup_tor_enforcement_dns()
     display_alert "Point /etc/resolvconf/resolv.conf.d/head to the local Tor DNS resolver" "/etc/resolvconf/resolv.conf.d/head"  ""
     local resconfhead=/etc/resolvconf/resolv.conf.d/head
     echo "nameserver 127.0.0.1" > $resconfhead
+    
+    # remove static resolv.conf and setup symbolic link to generated resolv.conf
+    rm /etc/resolv.conf 2>/dev/null
+    ln -s /etc/resolvconf/run/resolv.conf /etc/resolv.conf
+    resolvconf -u
 
     # enable DNS, transparent proxy and misc setting
     display_alert "Enable Tor DNS, transparent proxy and misc settings" "/etc/tor/torrc" ""
