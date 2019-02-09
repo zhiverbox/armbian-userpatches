@@ -585,6 +585,9 @@ configure_firewall()
 # https://en.bitcoin.it/wiki/Data_directory#blocks_subdirectory
 preload_blockchain()
 {
+	# silently return if a non-empty blocks directory already exists
+	[[ $(ls -A $INSTALL_PATH/$BITCOIN_DATADIR_RELATIVE/blocks/ 2>/dev/null) ]] && return 0
+
 	display_alert "Preloading a copy of the ${BITCOIN_LAYER1_NETWORK^^} Bitcoin blockchain database" "" "todo"
 	echo -e \
 "You could start the ${BITCOIN_FILE_PREFIX}bitcoind daemon now and it would start syncing 
