@@ -371,6 +371,11 @@ install_bitcoincore()
 		if [[ ! -d $blockchainvol ]]; then btrfs subvolume create $blockchainvol 2>&1 | sed "s/^/${SED_INTEND}/"; fi
 		if [[ ! -d $blockchainvol/blocks ]]; then make_private_dir $blockchainvol/blocks; fi
 		if [[ ! -d $blockchainvol/chainstate ]]; then make_private_dir $blockchainvol/chainstate; fi
+		# since version 0.17.0 there are additional database folders
+		if version_ge $VERSION "0.17.0" ; then
+		    if [[ ! -d $blockchainvol/indexes ]]; then make_private_dir $blockchainvol/indexes; fi
+		    if [[ ! -d $blockchainvol/database ]]; then make_private_dir $blockchainvol/database; fi
+		fi
 	
 		# automatic daily snapshots of @current subvolume
 		local cronfile=/etc/cron.daily/${BITCOIN_FILE_PREFIX}blockchain-snp
@@ -383,12 +388,17 @@ install_bitcoincore()
 EOF
 		chmod +x $cronfile
 	
-		# setup .bitcoin data directory
+		# setup .bitcoin data directory with symbolic links to btrfs subvolume
 		BITCOIN_DATADIR=$INSTALL_PATH/$BITCOIN_DATADIR_RELATIVE
 		display_alert "Creating ${BITCOIN_FILE_PREFIX}bitcoind data directory..." "$BITCOIN_DATADIR"
 		if [[ ! -d $BITCOIN_DATADIR ]]; then make_dir $BITCOIN_DATADIR; fi
 		if [[ ! -d $BITCOIN_DATADIR/blocks ]]; then sudo -u $BITCOIN_USER ln -s $blockchainvol/blocks $BITCOIN_DATADIR/blocks; fi
 		if [[ ! -d $BITCOIN_DATADIR/chainstate ]]; then sudo -u $BITCOIN_USER ln -s $blockchainvol/chainstate $BITCOIN_DATADIR/chainstate; fi
+		# since version 0.17.0 there are additional database folders
+		if version_ge $VERSION "0.17.0" ; then
+		    if [[ ! -d $BITCOIN_DATADIR/indexes ]]; then sudo -u $BITCOIN_USER ln -s $blockchainvol/indexes $BITCOIN_DATADIR/indexes; fi
+		    if [[ ! -d $BITCOIN_DATADIR/database ]]; then sudo -u $BITCOIN_USER ln -s $blockchainvol/database $BITCOIN_DATADIR/database; fi
+		fi
 		chown -R $BITCOIN_USER:$BITCOIN_GROUP $BITCOIN_DATADIR
 	fi
 	
