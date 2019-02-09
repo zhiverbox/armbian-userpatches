@@ -23,4 +23,4 @@ fi
 # start
 echo "Access via your web browser: http://localhost:$HTTP_PORT"
 cd $SRC_HOME
-RPC_HOST="localhost" RPC_PORT="$bitcoind_default_rpcport" RPC_COOKIEFILE="$cookiefile" yarn start 1>run.log
+./bin/cli.js --port $HTTP_PORT --bitcoind-host "localhost" --bitcoind-port $bitcoind_default_rpcport --bitcoind-cookie $cookiefile --no-rates 1>run.log

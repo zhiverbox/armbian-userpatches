@@ -2,7 +2,7 @@
 
 # meta info for list_available_installers.sh
 SNAME="zHIVErbox BTC RPC Explorer Installer"
-SVERSION="0.1.0"
+SVERSION="0.1.1"
 
 NO_REMIND_SETUP_FILE=/etc/zhiverbox/.no_remind_btc-rpc-explorer_setup
 
@@ -35,7 +35,7 @@ build_btcrpcexplorer()
 
     while [ ! ${BTC_RPC_EXPLORER_CHECKOUT_COMPLETE}  ]
     do
-        clone_or_update_from_github "btc-rpc-explorer" "https://github.com/zhiverbox/btc-rpc-explorer" "master"
+        clone_or_update_from_github "btc-rpc-explorer" "https://github.com/janoside/btc-rpc-explorer" "master"
     done
 
     display_alert "Building btc-rpc-explorer from sources" "sudo -u user yarn install" ""
