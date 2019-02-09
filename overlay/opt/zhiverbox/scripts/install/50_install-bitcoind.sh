@@ -749,7 +749,7 @@ installer is interrupted. Therefore we just show you the command you can run on
 your own to copy the blockchain backup. You can re-run this command at any time
 without having to start the Bitcoin installer again.
 "
-	local rsynccmd="rsync -av --include='blocks/***' --include='chainstate/***' --exclude='*' --chown=$BITCOIN_USER:$BITCOIN_GROUP --progress $blocksource/ $INSTALL_PATH/.bitcoin/"
+	local rsynccmd="rsync -av --include='blocks/***' --include='chainstate/***' --include='database/***' --include='indexes/***' --exclude='*' --chown=$BITCOIN_USER:$BITCOIN_GROUP --progress $blocksource/ $INSTALL_PATH/.bitcoin/"
 	display_alert "Please run:" "sudo $rsynccmd" "todo"
 }
 
@@ -767,7 +767,7 @@ without having to start the Bitcoin installer again.
 	if [[ -z $(which fpsync) ]]; then
 		apt_install_fancy_retry fpart
 	fi
-	local fpsynccmd="fpsync -vv -S -n 4 -f 1000 -s $((256 * 1024 * 1024)) -o \"-av --include='blocks/***' --include='chainstate/***' --exclude='*' --chown=user:user\" $blocksource/ $INSTALL_PATH/.bitcoin/"
+	local fpsynccmd="fpsync -vv -S -n 4 -f 1000 -s $((256 * 1024 * 1024)) -o \"-av --include='blocks/***' --include='chainstate/***' --include='database/***' --include='indexes/***' --exclude='*' --chown=user:user\" $blocksource/ $INSTALL_PATH/.bitcoin/"
 	display_alert "Please run:" "$fpsynccmd" "todo"
 }
 
@@ -781,7 +781,7 @@ allows you to reconnect and continue copying if this happens, without having to
 start all over again.
 "
 	press_any_key
-	local rsynccmd="rsync -avz --include='blocks/***' --include='chainstate/***' --exclude='*' --chown=$BITCOIN_USER:$BITCOIN_GROUP --progress ./ root@$(hostname):$INSTALL_PATH/.bitcoin/"
+	local rsynccmd="rsync -avz --include='blocks/***' --include='chainstate/***' --include='database/***' --include='indexes/***' --exclude='*' --chown=$BITCOIN_USER:$BITCOIN_GROUP --progress ./ root@$(hostname):$INSTALL_PATH/.bitcoin/"
 	echo -e \
 "Change into the Bitcoin data directory (usually ~/.bitcoin) on the remote 
 system and run:
