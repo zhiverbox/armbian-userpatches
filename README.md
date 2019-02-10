@@ -10,17 +10,20 @@ development boards.
 # Why zHIVErbox?
 Unfortunatly, security cannot be provided as a simple 'download'.  A secure 
 system requires individual encryption and a secure source of randomness 
-(entropy).  Therefore a secure system can only be created by a self-sovereign 
-individual themself - and only for themself.  However, not everybody in a HIVE 
+(entropy).  Therefore a secure system can only be created by self-sovereign 
+individuals themself - and only for themself.  However, not everybody in a HIVE 
 (society) can aquire the highly specialized knowledge and skills to create their 
 own secure system from scratch.  
 
 Therefore Cypherpunks write software and provide technology that can be used by 
-other individuals to achieve the same level of security, privacy and self 
+other individuals to achieve the same level of security, privacy and self- 
 sovereignty.  Those tools should be as user friendly as possible without 
 compromising on security.  Ideally, those tools still provide a certain level of 
 education, to retain their users from developing a 'blindly trusting attitude'.  
 DON'T TRUST! VERIFY!  
+
+zHIVErbox is a set of open source tools following these guidelines while
+maintaining a `security first` approach.  
 
 # zHIVERbox Features
 While Armbian is perfect for development purposes, zHIVErbox customizations try 
@@ -29,15 +32,17 @@ to reduce typical and possible attack vectors to a minimum.
 
 High-level differences with `Vanilla Armbian`:
 * LUKS encrypted root partition with Btrfs filesystem / subvolumes (flat layout)
-* btrfs-snap tool for easy cron-based btrfs snapshots
+* LUKS encrypted data partition on the attached hard disk (Odroid HC1/HC2)
 * Security-hardened Linux kernel
-* Firewall (ferm)
+* Firewall (ferm) to block all inbound/outbound Clearnet traffic by default
+* Enforces SSH public-key authentication
 * Enforces all Internet traffic (incl. DNS) over Tor
-* Filter (proxy) for fine-graned access to Tor control port (onion grater)
 * Tor-based time syncing instead of NTP (tordate and htpdate)
+* Filter (proxy) for fine-graned access to Tor control port (onion grater)
 * Ships with Cjdns (OSI-Layer-3 meshnet routing software) by default
 * Ships with KadNode (DHT based, decentalized DNS alternative) by default
 * Ships with IPFS (InterPlanetary File System) by default
+* btrfs-snap tool for easy cron-based btrfs snapshots
 
 For details please see the Security Design (SECURITY.md).
 
