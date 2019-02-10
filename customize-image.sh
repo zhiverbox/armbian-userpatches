@@ -73,8 +73,6 @@ Install_zHIVErbox() {
 	torify_git
 	torify_non_socks
 	install_tor_grater
-	setup_tor_enforcement_dns
-	setup_tor_enforcement_ferm
 	
 	# setup Tails(Tor) based time syncing using
 	setup_time_sync
@@ -157,6 +155,10 @@ Install_zHIVErbox() {
     # update command not found database
     /usr/sbin/update-command-not-found
     
+    # since we're in chroot do this at the end
+    setup_tor_enforcement_dns
+    setup_tor_enforcement_ferm
+
     # unmount apt cache
     umount /var/cache/apt
 	
