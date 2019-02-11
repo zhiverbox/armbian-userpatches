@@ -20,6 +20,8 @@ ExecStart=/usr/bin/taskset -a -c 4-7 \
               -pid=/run/{{PREFIX}}bitcoind/bitcoind.pid \
               -rpccookiefile=/run/{{PREFIX}}bitcoind/authcookie \
               ${{EXTRA_ARGS_NAME}}
+# wait 5 seconds for the authcookie file to be created and change group permissions
+ExecStartPost=-/bin/sleep 5
 ExecStartPost=-/bin/chmod g+r /run/{{PREFIX}}bitcoind/authcookie
 # Creates /run/{{PREFIX}}bitcoind owned by {{BITCOIN_USER}}
 RuntimeDirectory={{PREFIX}}bitcoind
