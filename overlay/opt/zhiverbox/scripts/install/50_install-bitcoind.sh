@@ -371,10 +371,9 @@ install_bitcoincore()
 		if [[ ! -d $blockchainvol ]]; then btrfs subvolume create $blockchainvol 2>&1 | sed "s/^/${SED_INTEND}/"; fi
 		if [[ ! -d $blockchainvol/blocks ]]; then make_private_dir $blockchainvol/blocks; fi
 		if [[ ! -d $blockchainvol/chainstate ]]; then make_private_dir $blockchainvol/chainstate; fi
-		# since version 0.17.0 there are additional database folders
+		# since version 0.17.0 there's an additional indexes folder
 		if version_ge $VERSION "0.17.0" ; then
 		    if [[ ! -d $blockchainvol/indexes ]]; then make_private_dir $blockchainvol/indexes; fi
-		    if [[ ! -d $blockchainvol/database ]]; then make_private_dir $blockchainvol/database; fi
 		fi
 	
 		# automatic daily snapshots of @current subvolume
@@ -394,10 +393,9 @@ EOF
 		if [[ ! -d $BITCOIN_DATADIR ]]; then make_dir $BITCOIN_DATADIR; fi
 		if [[ ! -d $BITCOIN_DATADIR/blocks ]]; then sudo -u $BITCOIN_USER ln -s $blockchainvol/blocks $BITCOIN_DATADIR/blocks; fi
 		if [[ ! -d $BITCOIN_DATADIR/chainstate ]]; then sudo -u $BITCOIN_USER ln -s $blockchainvol/chainstate $BITCOIN_DATADIR/chainstate; fi
-		# since version 0.17.0 there are additional database folders
+		# since version 0.17.0 there's an additional indexes folder
 		if version_ge $VERSION "0.17.0" ; then
 		    if [[ ! -d $BITCOIN_DATADIR/indexes ]]; then sudo -u $BITCOIN_USER ln -s $blockchainvol/indexes $BITCOIN_DATADIR/indexes; fi
-		    if [[ ! -d $BITCOIN_DATADIR/database ]]; then sudo -u $BITCOIN_USER ln -s $blockchainvol/database $BITCOIN_DATADIR/database; fi
 		fi
 		chown -R $BITCOIN_USER:$BITCOIN_GROUP $BITCOIN_DATADIR
 	fi
@@ -749,7 +747,7 @@ installer is interrupted. Therefore we just show you the command you can run on
 your own to copy the blockchain backup. You can re-run this command at any time
 without having to start the Bitcoin installer again.
 "
-	local rsynccmd="rsync -av --include='blocks/***' --include='chainstate/***' --include='database/***' --include='indexes/***' --exclude='*' --chown=$BITCOIN_USER:$BITCOIN_GROUP --progress $blocksource/ $INSTALL_PATH/.bitcoin/"
+	local rsynccmd="rsync -av --include='blocks/***' --include='chainstate/***' --include='indexes/***' --exclude='*' --chown=$BITCOIN_USER:$BITCOIN_GROUP --progress $blocksource/ $INSTALL_PATH/.bitcoin/"
 	display_alert "Please run:" "sudo $rsynccmd" "todo"
 }
 
@@ -767,7 +765,7 @@ without having to start the Bitcoin installer again.
 	if [[ -z $(which fpsync) ]]; then
 		apt_install_fancy_retry fpart
 	fi
-	local fpsynccmd="fpsync -vv -S -n 4 -f 1000 -s $((256 * 1024 * 1024)) -o \"-av --include='blocks/***' --include='chainstate/***' --include='database/***' --include='indexes/***' --exclude='*' --chown=user:user\" $blocksource/ $INSTALL_PATH/.bitcoin/"
+	local fpsynccmd="fpsync -vv -S -n 4 -f 1000 -s $((256 * 1024 * 1024)) -o \"-av --include='blocks/***' --include='chainstate/***' --include='indexes/***' --exclude='*' --chown=user:user\" $blocksource/ $INSTALL_PATH/.bitcoin/"
 	display_alert "Please run:" "$fpsynccmd" "todo"
 }
 
@@ -781,7 +779,7 @@ allows you to reconnect and continue copying if this happens, without having to
 start all over again.
 "
 	press_any_key
-	local rsynccmd="rsync -avz --include='blocks/***' --include='chainstate/***' --include='database/***' --include='indexes/***' --exclude='*' --chown=$BITCOIN_USER:$BITCOIN_GROUP --progress ./ root@$(hostname):$INSTALL_PATH/.bitcoin/"
+	local rsynccmd="rsync -avz --include='blocks/***' --include='chainstate/***' --include='indexes/***' --exclude='*' --chown=$BITCOIN_USER:$BITCOIN_GROUP --progress ./ root@$(hostname):$INSTALL_PATH/.bitcoin/"
 	echo -e \
 "Change into the Bitcoin data directory (usually ~/.bitcoin) on the remote 
 system and run:
