@@ -2,7 +2,7 @@
 
 # meta info for list_available_installers.sh
 SNAME="zHIVErbox Bitcoin Core Installer"
-SVERSION="0.1.0"
+SVERSION="0.1.1"
 
 ZHIVER_LOG=~/zhiverbox_install-bitcoind.log
 touch $ZHIVER_LOG
