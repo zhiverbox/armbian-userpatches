@@ -2,7 +2,7 @@
 
 # meta info for list_available_installers.sh
 SNAME="zHIVErbox BTC RPC Explorer Installer"
-SVERSION="0.1.1"
+SVERSION="0.1.2"
 
 NO_REMIND_SETUP_FILE=/etc/zhiverbox/.no_remind_btc-rpc-explorer_setup
 
