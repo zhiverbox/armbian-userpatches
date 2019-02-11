@@ -26,6 +26,9 @@ mkdir -p $SRC_HOME
 # http port of btc-rpc-explorer (see bin/www)
 HTTP_PORT=3002
 
+# wrapper script to run btc-rpc-explorer for MAINNET or TESTNET
+WRAPPER=$ZHIVERBOX_HOME/scripts/btc-rpc-explorer/btc-rpc-explorer
+
 build_btcrpcexplorer()
 {
     # https://github.com/janoside/btc-rpc-explorer/blob/master/README.md
@@ -40,7 +43,7 @@ build_btcrpcexplorer()
 
     display_alert "Building btc-rpc-explorer from sources" "sudo -u user yarn install" ""
     local workdir=$(pwd)
-    chown user:users $SRC_HOME/btc-rpc-explorer
+    chown -R user:users $SRC_HOME/btc-rpc-explorer
     cd $SRC_HOME/btc-rpc-explorer
     sudo -u user yarn install
 }
@@ -60,10 +63,9 @@ Therefore we'll start it only when needed by you.
     press_any_key
 
     # install wrapper script
-    local wrapper=$ZHIVERBOX_HOME/scripts/btc-rpc-explorer/btc-rpc-explorer
-    sed -i "s~^SRC_HOME=.*\$~SRC_HOME=$SRC_HOME/btc-rpc-explorer~" $wrapper
-    sed -i "s~^HTTP_PORT=.*\$~HTTP_PORT=$HTTP_PORT~" $wrapper
-    install -o root -g root -m 0755 $wrapper /usr/local/bin/$(basename $wrapper)
+    sed -i "s~^SRC_HOME=.*\$~SRC_HOME=$SRC_HOME/btc-rpc-explorer~" $WRAPPER
+    sed -i "s~^HTTP_PORT=.*\$~HTTP_PORT=$HTTP_PORT~" $WRAPPER
+    install -o root -g root -m 0755 $WRAPPER /usr/local/bin/$(basename $WRAPPER)
 }
 
 configure_firewall()
@@ -122,12 +124,12 @@ be started. And it will be terminated again when the SSH connection is closed.
 your workstation:
 
 ${BOLD}For Bitcoin MAINNET${NC}
-  ${ORANGE}ssh user@`get_local_ipv4_addr` -L 3002:localhost:3002 -t `basename $wrapper`${NC}
-  ${ORANGE}ssh user@`get_local_cjdns_addr` -L 3002:localhost:3002 -t `basename $wrapper`${NC}
+  ${ORANGE}ssh user@`get_local_ipv4_addr` -L 3002:localhost:3002 -t `basename $WRAPPER`${NC}
+  ${ORANGE}ssh user@`get_local_cjdns_addr` -L 3002:localhost:3002 -t `basename $WRAPPER`${NC}
 
 ${BOLD}For Bitcoin TESTNET${NC}
-  ${ORANGE}ssh user@`get_local_ipv4_addr` -L 3002:localhost:3002 -t `basename $wrapper` testnet${NC}
-  ${ORANGE}ssh user@`get_local_cjdns_addr` -L 3002:localhost:3002 -t `basename $wrapper` testnet${NC}
+  ${ORANGE}ssh user@`get_local_ipv4_addr` -L 3002:localhost:3002 -t `basename $WRAPPER` testnet${NC}
+  ${ORANGE}ssh user@`get_local_cjdns_addr` -L 3002:localhost:3002 -t `basename $WRAPPER` testnet${NC}
 "
 }
 
