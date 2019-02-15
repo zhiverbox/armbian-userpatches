@@ -9,7 +9,10 @@ assert_interactive
 
 POST_USER_SETUP_FILE=/etc/zhiverbox/.post_user_setup
 
-SSH_USER_KEY=/etc/zhiverbox/id_ecdsa.pub
+# path and name of the SSH public key to use for authentication
+# ATTENTION!!! MUST BE IN SYNC WITH: 
+# install-zhiverbox.sh
+SSH_AUTH_KEY=/etc/zhiverbox/ssh_auth_key.pub
 
 # if post user setup was done already, sliently return
 [[ ! -f $POST_USER_SETUP_FILE ]] && return
@@ -53,14 +56,14 @@ using the 'ssh-keygen -f' command to fix this.
 enable_ssh_pubkey_for_user()
 {
     # copy ssh pubkey for user login placed by zHIVErbox installer
-    authkeysfile=/home/user/.ssh/authorized_keys
+    local authkeysfile=/home/user/.ssh/authorized_keys
     display_alert "Enabling SSH pubkey authentication for 'user' account..." "$authkeysfile" ""
 
-    if [ -f $SSH_USER_KEY ]; then
+    if [ -f $SSH_AUTH_KEY ]; then
         sudo -u user mkdir -m 700 /home/user/.ssh 2>/dev/null
         sudo -u user install -m 600 /dev/null $authkeysfile
         echo "# public key provided by zHIVErbox installer" > $authkeysfile
-        cat $SSH_USER_KEY >> $authkeysfile
+        cat $SSH_AUTH_KEY >> $authkeysfile
         display_alert "Enabled SSH public key authentication for account:" "user" "ext"
         display_alert "Disabling SSH password authentication for all accounts..." "/etc/ssh/sshd_config" ""
         sed -i 's/^.*PasswordAuthentication\s.*$/PasswordAuthentication no/' /etc/ssh/sshd_config
