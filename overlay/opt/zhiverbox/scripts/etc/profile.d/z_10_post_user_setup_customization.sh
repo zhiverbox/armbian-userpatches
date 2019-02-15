@@ -10,7 +10,7 @@ assert_interactive
 POST_USER_SETUP_FILE=/etc/zhiverbox/.post_user_setup
 
 # path and name of the SSH public key to use for authentication
-# ATTENTION!!! MUST BE IN SYNC WITH: 
+# ATTENTION!!! MUST BE IN SYNC WITH:
 # install-zhiverbox.sh
 SSH_AUTH_KEY=/etc/zhiverbox/ssh_auth_key.pub
 
