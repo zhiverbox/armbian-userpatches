@@ -511,9 +511,15 @@ move_user_cache_dir()
 {
     display_alert "Move user's cache directory (/home/user/.cache) to:" "/var/cache/user" "info"
     if [[ -d /home/user/.cache ]]; then
-        mv /home/user/.cache /var/cache/user 2>/dev/null
+        if [[ -d /var/cache/user ]]; then
+            chown user:user /var/cache/user
+            mv /home/user/.cache/* /var/cache/user/
+            rm /home/user/.cache
+        else
+            mv /home/user/.cache /var/cache/user
+        fi
     else
-        mkdir /var/cache/user
+        mkdir -p /var/cache/user
         chown user:user /var/cache/user
     fi
     sudo -u user ln -s /var/cache/user /home/user/.cache
