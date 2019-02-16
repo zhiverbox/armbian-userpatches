@@ -386,7 +386,7 @@ modify_motd_sysinfo()
 {
     echo ""
     local target_file="/etc/update-motd.d/30-armbian-sysinfo"
-    sed -i "/^storage=/c\storage=/dev/mapper/${mapper_name}" $target_file
+    sed -i "/^STORAGE=/c\STORAGE=/dev/mapper/${mapper_name}" $target_file
     display_alert "Changed storage device to monitor in:" "$target_file" "info"
 }
 

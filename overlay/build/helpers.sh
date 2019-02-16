@@ -713,7 +713,7 @@ motd_change_30_sysinfo()
     sed -i "s/$oldipline/$newipline/" $motdfile
     
     # modify storage
-    sed -i "s/storage=\/dev\/sda1/storage=\/dev\/mapper\/cryptdata/" $motdfile
+    sed -i "s/STORAGE=\/dev\/sda1/STORAGE=\/dev\/mapper\/cryptdata/" $motdfile
 
     cat $motdfile
 }
