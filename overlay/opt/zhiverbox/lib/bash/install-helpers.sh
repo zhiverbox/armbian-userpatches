@@ -45,6 +45,9 @@ clone_or_update_from_github()
         mkdir -p $target_path 2>/dev/null
         chown nobody:nogroup $target_path
         $GIT_CMD clone $branch --recursive ${origin}.git $target_path
+    else
+        # make sure that 'nobody' can write/update the target
+        chown nobody:nogroup $target_path
     fi
 
     local workdir=$(pwd)
