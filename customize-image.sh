@@ -115,6 +115,9 @@ Install_zHIVErbox() {
 	# install secure-delete
     apt-get -y -q install secure-delete
     
+    # initramfs post-update boot signature creation script
+    install_initramfs_bootsig_postupdate
+
     # install btrfs-snp
     install_btrfs_snp
     

@@ -1,0 +1,28 @@
+#!/bin/sh
+
+echo "update-initramfs: Calculate SHA-256 hashes of updated boot system" >&2
+BOOT_DIR=/boot
+TMP_DIR=/tmp
+TMP_SHASUMS_FILENAME=BOOT_SHA256SUMS_`date -I`.txt
+TMP_SHASUMS_FILE=$TMPDIR/$TMP_SHASUMS_FILENAME
+
+# ATTENTION: path must be the same as in zhiverbox-installer.sh
+SIGNED_SHASUMS_FILENAME=SHA256SUMS.asc
+SIGNED_SHASUMS_FILE=$BOOT_DIR/$SIGNED_SHASUMS_FILENAME
+
+mkdir -p $TMP_DIR 2>/dev/null
+rm $TMP_SHASUMS_FILE 2>/dev/null
+
+cd $BOOT_DIR
+for file in $(find . -type f \( ! -name "$SIGNED_SHASUMS_FILENAME" \));
+do
+    sha256sum $file >> $TMP_SHASUMS_FILE
+done
+
+# sign the file
+gpg2 --output $SIGNED_SHASUMS_FILE --yes --clearsign --armor $TMP_SHASUMS_FILE
+
+# verify
+gpg2 -d $SIGNED_SHASUMS_FILE | sha256sum -c
+
+exit 0

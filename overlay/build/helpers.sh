@@ -774,3 +774,11 @@ safe_hard_disk_parking_on_shutdown()
     apt-get -y -q install hdparm mdadm
     sudo install -o root -g root -m 0755 /tmp/overlay/lib/systemd/system-shutdown/odroid.shutdown /lib/systemd/system-shutdown/odroid.shutdown
 }
+
+install_initramfs_bootsig_postupdate()
+{
+    local postupd="/etc/initramfs/post-update.d/999-boot-signature"
+    echo "" && display_alert "Install initramfs boot signature post-update script" "$postupd" ""
+
+    install -o root -g root -m 0755 -D /tmp/overlay/build$postupd $postupd
+}
