@@ -484,7 +484,7 @@ relocate_vardir_btrfs()
     echo ""
     display_alert "Relocation of /var complete." "" "info"
 
-    move_user_cache_dir
+    move_user_cache_dir $destination
 
     # disable log2ram service
     disable_ramlog
@@ -509,19 +509,20 @@ system (initramfs) via SSH on port 2222.
 # cache directory '/home/user/.cache' (e.g. used by yarn) to /var/cache as well
 move_user_cache_dir()
 {
-    display_alert "Move user's cache directory (/home/user/.cache) to:" "/var/cache/user" "info"
+    display_alert "Move user's cache directory (/home/user/.cache) to:" "$1/cache/user" "info"
     if [[ -d /home/user/.cache ]]; then
-        if [[ -d /var/cache/user ]]; then
-            chown user:user /var/cache/user
-            mv /home/user/.cache/* /var/cache/user/
+        if [[ -d $1/cache/user ]]; then
+            chown user:user $1/cache/user
+            mv /home/user/.cache/* $1/cache/user/
             rm /home/user/.cache
         else
-            mv /home/user/.cache /var/cache/user
+            mv /home/user/.cache $1/cache/user
         fi
     else
-        mkdir -p /var/cache/user
-        chown user:user /var/cache/user
+        mkdir -p $1/cache/user
+        chown user:user $1/cache/user
     fi
+    # but make symbolic link to /var and not $1 !!!
     sudo -u user ln -s /var/cache/user /home/user/.cache
 }
 
