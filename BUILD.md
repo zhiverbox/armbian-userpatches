@@ -8,11 +8,11 @@ individual before installation on their own hardware.
 sudo apt-get install tor torsocks
 sudo systemctl status tor@default.service
 ```
-While this is not a requirement for a vanilla Armbian build, zhiverbox build needs
+While this is not a requirement for a vanilla Armbian build, zHIVErbox build needs
 this as it onionfies the apt sources of the target system. This happens within
-the `customize-image.sh` which runs in a chroot environment where no system
-serices like `tor` can be installed or started. So `tor.service` needs to be
-running on the build system already before the build process is started.
+the `customize-image.sh` script which runs in a chroot environment where no
+system serices like `tor` can be installed or started. So `tor.service` needs
+to be running on the build system already before the build process is started.
 
 ## Checkout the zHIVErbox fork of Armbian
 ```
