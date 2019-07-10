@@ -3,8 +3,7 @@ The build process only creates a `source image` which allows for distribution
 to users, but needs to be customized and re-encrypted by every self-souvereign
 individual before installation on their own hardware.
 
-## Make sure you have `tor` and `torsocks` installed and running on the build
-system
+## Make sure you have `tor` and `torsocks` installed and running on the build system
 ```
 sudo apt-get install tor torsocks
 sudo systemctl status tor@default.service
